@@ -94,6 +94,22 @@ export function spendingByCategoryQuery(filter: TransactionFilter) {
     .orderBy(desc(sql`total_minor`));
 }
 
+/** Raw rows for client-side month bucketing (see chart-geometry's month trend math). */
+export function transactionAmountsQuery(filter: TransactionFilter) {
+  return db
+    .select({
+      occurredAt: transactions.occurredAt,
+      type: transactions.type,
+      amountMinor: transactions.amountMinor,
+    })
+    .from(transactions)
+    .where(filterConditions(filter));
+}
+
+export type TransactionAmountRow = Awaited<
+  ReturnType<typeof transactionAmountsQuery>
+>[number];
+
 /** Lifetime net of every non-deleted transaction, used for current balance. */
 export function netBalanceQuery() {
   return db

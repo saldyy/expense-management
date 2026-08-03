@@ -42,3 +42,20 @@ export function formatFullDate(timestamp: number, locale: string): string {
 export function dayKey(timestamp: number): string {
   return format(new Date(timestamp), 'yyyy-MM-dd');
 }
+
+/** Stable key for grouping transactions by calendar month (mirrors `dayKey`). */
+export function monthKey(timestamp: number): string {
+  return format(new Date(timestamp), 'yyyy-MM');
+}
+
+/** 'yyyy-MM' keys for `count` trailing months ending at `date`'s month, oldest first. */
+export function trailingMonthKeys(date: Date, count: number): string[] {
+  return Array.from({ length: count }, (_, i) =>
+    monthKey(addMonths(date, -(count - 1 - i)).getTime())
+  );
+}
+
+/** 'Aug' — short month label for the trend chart's x-axis. */
+export function formatMonthShort(date: Date, locale: string): string {
+  return format(date, 'LLL', { locale: localeFor(locale) });
+}

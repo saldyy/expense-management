@@ -13,6 +13,7 @@
   "tabs": {
     "overview": "Overview",
     "transactions": "Transactions",
+    "stats": "Stats",
     "settings": "Settings"
   },
   "overview": {
@@ -78,6 +79,13 @@
   },
   "accounts": {
     "cash": "Cash"
+  },
+  "stats": {
+    "title": "Stats",
+    "expenseVsIncome": "Expense vs income",
+    "netThisMonth": "Net",
+    "sixMonthTrend": "6-month trend",
+    "noActivity": "No transactions recorded this month."
   },
   "migration": {
     "preparing": "Preparing your data…",

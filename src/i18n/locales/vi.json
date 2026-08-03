@@ -13,6 +13,7 @@
   "tabs": {
     "overview": "Tổng quan",
     "transactions": "Giao dịch",
+    "stats": "Thống kê",
     "settings": "Cài đặt"
   },
   "overview": {
@@ -78,6 +79,13 @@
   },
   "accounts": {
     "cash": "Tiền mặt"
+  },
+  "stats": {
+    "title": "Thống kê",
+    "expenseVsIncome": "Chi tiêu và thu nhập",
+    "netThisMonth": "Số dư ròng",
+    "sixMonthTrend": "Xu hướng 6 tháng",
+    "noActivity": "Chưa có giao dịch nào trong tháng này."
   },
   "migration": {
     "preparing": "Đang chuẩn bị dữ liệu…",
