@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -21,6 +22,7 @@ import { listAccountsQuery } from '@/db/queries/accounts';
 import { listCategoriesQuery } from '@/db/queries/categories';
 import {
   createTransaction,
+  softDeleteTransaction,
   transactionByIdQuery,
   updateTransaction,
 } from '@/db/queries/transactions';
@@ -51,6 +53,7 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
   const [occurredAt, setOccurredAt] = useState(() => Date.now());
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [prefilled, setPrefilled] = useState(false);
 
   const { data: categories } = useLiveQuery(listCategoriesQuery(type), [type]);
@@ -126,6 +129,26 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
     }
   }
 
+  function confirmDelete() {
+    Alert.alert(t('form.deleteConfirmTitle'), t('form.deleteConfirmMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: handleDelete },
+    ]);
+  }
+
+  async function handleDelete() {
+    if (!transactionId) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      await softDeleteTransaction(transactionId);
+      router.back();
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <ScreenContainer edges={{ top: true, bottom: true }}>
       <KeyboardAvoidingView
@@ -194,6 +217,15 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
           onPress={handleSave}
           style={styles.save}
         />
+        {isEditing ? (
+          <Button
+            label={t('common.delete')}
+            loading={deleting}
+            onPress={confirmDelete}
+            style={styles.delete}
+            variant="danger"
+          />
+        ) : null}
       </KeyboardAvoidingView>
     </ScreenContainer>
   );
@@ -221,6 +253,9 @@ const styles = StyleSheet.create({
   dateValue: {
     fontSize: fontSize.body,
     fontWeight: '600',
+  },
+  delete: {
+    marginBottom: spacing.md,
   },
   error: {
     fontSize: fontSize.body,

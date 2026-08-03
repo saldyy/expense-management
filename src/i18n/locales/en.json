@@ -40,7 +40,9 @@
     "note": "Note",
     "notePlaceholder": "What was it for?",
     "missingAmount": "Enter an amount greater than zero.",
-    "missingCategory": "Pick a category."
+    "missingCategory": "Pick a category.",
+    "deleteConfirmTitle": "Delete this transaction?",
+    "deleteConfirmMessage": "This cannot be undone."
   },
   "settings": {
     "title": "Settings",

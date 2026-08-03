@@ -11,5 +11,16 @@
   ],
   "experiments": {
     "typedRoutes": true
+  },
+  "extra": {
+    "router": {},
+    "eas": {
+      "projectId": "0fdb578b-57ec-4db2-b74a-41f2b314e42f"
+    }
+  },
+  "expo": {
+    "android": {
+      "package": "com.sald12.expensemanagement"
+    }
   }
 }
