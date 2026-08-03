@@ -39,7 +39,7 @@ Bare Expo SDK 57 app (React Native 0.86, React 19, TypeScript 6). Offline-first 
 - `StyleSheet.create` at the bottom of each component file, with alphabetically-ordered style keys. Colors come from `useTheme()` (`src/hooks/use-theme.ts`) and are applied inline; only layout goes in the StyleSheet. Spacing/radius/font tokens come from `src/theme.ts`.
 - **Money is always an integer of minor units** (`amountMinor`). Never a float. All conversion and formatting lives in `src/utils/money.ts`; screens use the `useFormatCurrency()` hook.
 - Timestamps are epoch milliseconds stored as `INTEGER`.
-- **All rows are soft-deleted** (`deletedAt`) and carry `updatedAt`. Every read must filter `isNull(deletedAt)`.
+- **All rows are soft-deleted** (`deletedAt`) and carry `updatedAt`. Every read must filter `isNull(deletedAt)`. The one exception is `eraseAllData()` in `src/db/reset.ts` (Settings → Erase all data), which hard-deletes every table and reseeds — a deliberate, user-confirmed factory reset, not a pattern to reuse elsewhere.
 - IDs are client-generated UUIDs from `src/utils/id.ts` — never rely on autoincrement.
 - **All user-facing strings go through `t()`.** Add the key to both `src/i18n/locales/en.json` and `vi.json`; `en.json` is the source of truth for the typed key union. Seeded categories store an i18n key as their `name` and are resolved with `useCategoryName()`. The app always launches in English (`DEFAULT_LOCALE` in `src/i18n/index.ts`) regardless of device language — it does not read device locale — and only switches when the user picks a language in Settings.
 - Import app code via the `@/` alias, not relative paths that climb directories.

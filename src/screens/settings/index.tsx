@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CurrencyPicker } from './components/currency-picker';
+import { EraseDataButton } from './components/erase-data-button';
 import { LocalePicker } from './components/locale-picker';
 import { ThemePicker } from './components/theme-picker';
 import { Card } from '@/components/card';
@@ -42,6 +43,7 @@ export function Settings() {
               {t('settings.offlineNotice')}
             </Text>
           </Card>
+          <EraseDataButton />
         </Section>
       </ScrollView>
     </ScreenContainer>

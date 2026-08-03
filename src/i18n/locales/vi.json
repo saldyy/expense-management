@@ -52,7 +52,12 @@
       "dark": "Tối"
     },
     "data": "Dữ liệu",
-    "offlineNotice": "Mọi dữ liệu được lưu trên máy. Không cần tài khoản, không đồng bộ, dùng được offline."
+    "offlineNotice": "Mọi dữ liệu được lưu trên máy. Không cần tài khoản, không đồng bộ, dùng được offline.",
+    "eraseAllData": "Xoá toàn bộ dữ liệu",
+    "eraseConfirmTitle": "Xoá toàn bộ dữ liệu?",
+    "eraseConfirmMessage": "Thao tác này sẽ xoá vĩnh viễn mọi giao dịch, danh mục và tài khoản trên máy. Không thể hoàn tác.",
+    "eraseConfirmAction": "Xoá",
+    "eraseFailedTitle": "Không thể xoá dữ liệu"
   },
   "categories": {
     "food": "Ăn uống",

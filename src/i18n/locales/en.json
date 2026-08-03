@@ -52,7 +52,12 @@
       "dark": "Dark"
     },
     "data": "Data",
-    "offlineNotice": "Everything is stored on this device. No account, no sync, works offline."
+    "offlineNotice": "Everything is stored on this device. No account, no sync, works offline.",
+    "eraseAllData": "Erase all data",
+    "eraseConfirmTitle": "Erase all data?",
+    "eraseConfirmMessage": "This permanently deletes every transaction, category, and account on this device. This cannot be undone.",
+    "eraseConfirmAction": "Erase",
+    "eraseFailedTitle": "Couldn't erase data"
   },
   "categories": {
     "food": "Food & Dining",
