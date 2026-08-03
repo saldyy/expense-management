@@ -55,15 +55,21 @@
     "offlineNotice": "Everything is stored on this device. No account, no sync, works offline."
   },
   "categories": {
-    "food": "Food & Drink",
-    "transport": "Transport",
+    "food": "Food & Dining",
+    "beverage": "Beverage",
+    "transport": "Transportation",
     "housing": "Housing",
-    "shopping": "Shopping",
-    "health": "Health",
+    "utilities": "Utilities & Bills",
     "entertainment": "Entertainment",
+    "clothing": "Clothing",
+    "education": "Education",
+    "health": "Health & Workout",
     "other": "Other",
     "salary": "Salary",
-    "gift": "Gifts"
+    "sideJob": "Side job",
+    "investment": "Investment",
+    "refund": "Refund",
+    "otherIncome": "Other Income"
   },
   "accounts": {
     "cash": "Cash"

@@ -56,14 +56,20 @@
   },
   "categories": {
     "food": "Ăn uống",
+    "beverage": "Đồ uống",
     "transport": "Di chuyển",
     "housing": "Nhà cửa",
-    "shopping": "Mua sắm",
-    "health": "Sức khoẻ",
+    "utilities": "Hoá đơn & Tiện ích",
     "entertainment": "Giải trí",
+    "clothing": "Quần áo",
+    "education": "Giáo dục",
+    "health": "Sức khoẻ & Tập luyện",
     "other": "Khác",
     "salary": "Lương",
-    "gift": "Quà tặng"
+    "sideJob": "Việc làm thêm",
+    "investment": "Đầu tư",
+    "refund": "Hoàn tiền",
+    "otherIncome": "Thu nhập khác"
   },
   "accounts": {
     "cash": "Tiền mặt"
