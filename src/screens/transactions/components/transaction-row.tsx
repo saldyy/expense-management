@@ -11,7 +11,9 @@ import type { TransactionListItem } from '@/db/queries/transactions';
 import { useCategoryName } from '@/hooks/use-category-name';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { useTheme } from '@/hooks/use-theme';
+import { useLocale } from '@/stores/use-settings-store';
 import { fontSize, radius, spacing } from '@/theme';
+import { formatFullDate } from '@/utils/date';
 
 type TransactionRowProps = {
   item: TransactionListItem;
@@ -24,6 +26,8 @@ export function TransactionRow({ item, onPress, onDelete }: TransactionRowProps)
   const theme = useTheme();
   const { formatSigned } = useFormatCurrency();
   const categoryName = useCategoryName();
+  const locale = useLocale();
+  const date = formatFullDate(item.occurredAt, locale);
 
   return (
     <Animated.View
@@ -63,14 +67,12 @@ export function TransactionRow({ item, onPress, onDelete }: TransactionRowProps)
             <Text style={[styles.category, { color: theme.text }]}>
               {categoryName(item.categoryName, item.categoryIsDefault)}
             </Text>
-            {item.note ? (
-              <Text
-                numberOfLines={1}
-                style={[styles.note, { color: theme.textMuted }]}
-              >
-                {item.note}
-              </Text>
-            ) : null}
+            <Text
+              numberOfLines={1}
+              style={[styles.meta, { color: theme.textMuted }]}
+            >
+              {item.note ? `${date} · ${item.note}` : date}
+            </Text>
           </View>
 
           <Text
@@ -122,7 +124,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 40,
   },
-  note: {
+  meta: {
     fontSize: fontSize.caption,
   },
   row: {
