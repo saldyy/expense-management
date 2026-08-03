@@ -6,7 +6,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, AppState, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -14,7 +14,6 @@ import { db } from '@/db/client';
 import migrations from '@/db/migrations/migrations';
 import { seedIfEmpty } from '@/db/seed';
 import { useColorSchemeName, useTheme } from '@/hooks/use-theme';
-import { useSettingsStore } from '@/stores/use-settings-store';
 import { fontSize, spacing } from '@/theme';
 
 export default function RootLayout() {
@@ -29,16 +28,6 @@ export default function RootLayout() {
       .catch((seedError) => console.error('Seeding failed', seedError))
       .finally(() => setSeeded(true));
   }, [success]);
-
-  // On Android the device language can change while the app is backgrounded.
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
-        useSettingsStore.getState().syncWithDeviceLocale();
-      }
-    });
-    return () => subscription.remove();
-  }, []);
 
   return (
     <GestureHandlerRootView style={styles.root}>

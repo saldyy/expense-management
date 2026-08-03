@@ -17,7 +17,7 @@ truth.
 | Database         | SQLite via `expo-sqlite` + Drizzle ORM                  |
 | Reactivity       | `useLiveQuery` — reads re-run automatically after writes |
 | State management | Zustand (UI/session state only)                          |
-| Localization     | i18next + react-i18next + `expo-localization` (en, vi)  |
+| Localization     | i18next + react-i18next (en, vi — defaults to English)  |
 | Animation        | react-native-reanimated                                  |
 
 ## Getting started

@@ -41,6 +41,6 @@ Bare Expo SDK 57 app (React Native 0.86, React 19, TypeScript 6). Offline-first 
 - Timestamps are epoch milliseconds stored as `INTEGER`.
 - **All rows are soft-deleted** (`deletedAt`) and carry `updatedAt`. Every read must filter `isNull(deletedAt)`.
 - IDs are client-generated UUIDs from `src/utils/id.ts` — never rely on autoincrement.
-- **All user-facing strings go through `t()`.** Add the key to both `src/i18n/locales/en.json` and `vi.json`; `en.json` is the source of truth for the typed key union. Seeded categories store an i18n key as their `name` and are resolved with `useCategoryName()`.
+- **All user-facing strings go through `t()`.** Add the key to both `src/i18n/locales/en.json` and `vi.json`; `en.json` is the source of truth for the typed key union. Seeded categories store an i18n key as their `name` and are resolved with `useCategoryName()`. The app always launches in English (`DEFAULT_LOCALE` in `src/i18n/index.ts`) regardless of device language — it does not read device locale — and only switches when the user picks a language in Settings.
 - Import app code via the `@/` alias, not relative paths that climb directories.
 - SQLite booleans are declared `{ mode: 'boolean' }` in the schema and passed as JS booleans.

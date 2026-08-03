@@ -3,22 +3,18 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_CURRENCY, type CurrencyCode, type LocaleCode } from '@/constants';
-import i18n, { detectDeviceLocale } from '@/i18n';
+import i18n, { DEFAULT_LOCALE } from '@/i18n';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
 type SettingsState = {
   locale: LocaleCode;
-  /** True once the user has picked a language explicitly. */
-  localeIsExplicit: boolean;
   currency: CurrencyCode;
   themeMode: ThemeMode;
   hydrated: boolean;
   setLocale: (locale: LocaleCode) => void;
   setCurrency: (currency: CurrencyCode) => void;
   setThemeMode: (mode: ThemeMode) => void;
-  /** Re-reads the device locale — only applies if the user never chose one. */
-  syncWithDeviceLocale: () => void;
 };
 
 /**
@@ -27,39 +23,26 @@ type SettingsState = {
  */
 export const useSettingsStore = create<SettingsState>()(
   persist(
-    (set, get) => ({
-      locale: detectDeviceLocale(),
-      localeIsExplicit: false,
+    (set) => ({
+      locale: DEFAULT_LOCALE,
       currency: DEFAULT_CURRENCY,
       themeMode: 'system',
       hydrated: false,
 
       setLocale: (locale) => {
         i18n.changeLanguage(locale);
-        set({ locale, localeIsExplicit: true });
+        set({ locale });
       },
 
       setCurrency: (currency) => set({ currency }),
 
       setThemeMode: (themeMode) => set({ themeMode }),
-
-      syncWithDeviceLocale: () => {
-        if (get().localeIsExplicit) {
-          return;
-        }
-        const deviceLocale = detectDeviceLocale();
-        if (deviceLocale !== get().locale) {
-          i18n.changeLanguage(deviceLocale);
-          set({ locale: deviceLocale });
-        }
-      },
     }),
     {
       name: 'settings',
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: ({ locale, localeIsExplicit, currency, themeMode }) => ({
+      partialize: ({ locale, currency, themeMode }) => ({
         locale,
-        localeIsExplicit,
         currency,
         themeMode,
       }),
