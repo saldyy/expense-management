@@ -1,7 +1,16 @@
 {
-  "plugins": [
-    "expo-sqlite"
-  ],
   "name": "expense-management",
-  "slug": "expense-management"
+  "slug": "expense-management",
+  "scheme": "expense",
+  "newArchEnabled": true,
+  "userInterfaceStyle": "automatic",
+  "plugins": [
+    "expo-sqlite",
+    "expo-router",
+    "expo-status-bar",
+    "expo-localization"
+  ],
+  "experiments": {
+    "typedRoutes": true
+  }
 }

@@ -1,0 +1,76 @@
+{
+  "common": {
+    "cancel": "Huỷ",
+    "save": "Lưu",
+    "delete": "Xoá",
+    "done": "Xong",
+    "today": "Hôm nay",
+    "expense": "Chi tiêu",
+    "income": "Thu nhập",
+    "notFound": "Màn hình này không tồn tại.",
+    "goHome": "Về trang chủ"
+  },
+  "tabs": {
+    "overview": "Tổng quan",
+    "transactions": "Giao dịch",
+    "settings": "Cài đặt"
+  },
+  "overview": {
+    "title": "Tổng quan",
+    "balance": "Số dư hiện tại",
+    "spentThisMonth": "Đã chi",
+    "earnedThisMonth": "Đã thu",
+    "topCategories": "Danh mục chi nhiều nhất",
+    "noSpending": "Chưa có khoản chi nào trong tháng này."
+  },
+  "transactions": {
+    "title": "Giao dịch",
+    "empty": "Chưa có giao dịch nào",
+    "emptyHint": "Chạm + để ghi giao dịch đầu tiên.",
+    "add": "Thêm giao dịch",
+    "deleted": "Đã xoá giao dịch"
+  },
+  "form": {
+    "newTitle": "Giao dịch mới",
+    "editTitle": "Sửa giao dịch",
+    "amount": "Số tiền",
+    "category": "Danh mục",
+    "date": "Ngày",
+    "note": "Ghi chú",
+    "notePlaceholder": "Chi cho việc gì?",
+    "missingAmount": "Nhập số tiền lớn hơn 0.",
+    "missingCategory": "Chọn một danh mục."
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "language": "Ngôn ngữ",
+    "currency": "Tiền tệ",
+    "appearance": "Giao diện",
+    "theme": {
+      "system": "Theo hệ thống",
+      "light": "Sáng",
+      "dark": "Tối"
+    },
+    "data": "Dữ liệu",
+    "offlineNotice": "Mọi dữ liệu được lưu trên máy. Không cần tài khoản, không đồng bộ, dùng được offline."
+  },
+  "categories": {
+    "food": "Ăn uống",
+    "transport": "Di chuyển",
+    "housing": "Nhà cửa",
+    "shopping": "Mua sắm",
+    "health": "Sức khoẻ",
+    "entertainment": "Giải trí",
+    "other": "Khác",
+    "salary": "Lương",
+    "gift": "Quà tặng"
+  },
+  "accounts": {
+    "cash": "Tiền mặt"
+  },
+  "migration": {
+    "preparing": "Đang chuẩn bị dữ liệu…",
+    "failedTitle": "Không mở được cơ sở dữ liệu",
+    "failedHint": "Hãy khởi động lại ứng dụng. Nếu vẫn lỗi, cài lại để đặt lại dữ liệu cục bộ."
+  }
+}

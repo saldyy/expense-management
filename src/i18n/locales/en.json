@@ -1,0 +1,76 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "done": "Done",
+    "today": "Today",
+    "expense": "Expense",
+    "income": "Income",
+    "notFound": "This screen doesn't exist.",
+    "goHome": "Go to home screen"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "transactions": "Transactions",
+    "settings": "Settings"
+  },
+  "overview": {
+    "title": "Overview",
+    "balance": "Current balance",
+    "spentThisMonth": "Spent",
+    "earnedThisMonth": "Earned",
+    "topCategories": "Top categories",
+    "noSpending": "No spending recorded this month."
+  },
+  "transactions": {
+    "title": "Transactions",
+    "empty": "No transactions yet",
+    "emptyHint": "Tap + to record your first one.",
+    "add": "Add transaction",
+    "deleted": "Transaction deleted"
+  },
+  "form": {
+    "newTitle": "New transaction",
+    "editTitle": "Edit transaction",
+    "amount": "Amount",
+    "category": "Category",
+    "date": "Date",
+    "note": "Note",
+    "notePlaceholder": "What was it for?",
+    "missingAmount": "Enter an amount greater than zero.",
+    "missingCategory": "Pick a category."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "currency": "Currency",
+    "appearance": "Appearance",
+    "theme": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "data": "Data",
+    "offlineNotice": "Everything is stored on this device. No account, no sync, works offline."
+  },
+  "categories": {
+    "food": "Food & Drink",
+    "transport": "Transport",
+    "housing": "Housing",
+    "shopping": "Shopping",
+    "health": "Health",
+    "entertainment": "Entertainment",
+    "other": "Other",
+    "salary": "Salary",
+    "gift": "Gifts"
+  },
+  "accounts": {
+    "cash": "Cash"
+  },
+  "migration": {
+    "preparing": "Preparing your data…",
+    "failedTitle": "Could not open the database",
+    "failedHint": "Restart the app. If this keeps happening, reinstall to reset local data."
+  }
+}

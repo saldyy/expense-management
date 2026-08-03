@@ -12,27 +12,35 @@ npm start            # expo start (Metro dev server, QR + platform menu)
 npm run android      # expo start --android
 npm run ios          # expo start --ios
 npm run web          # expo start --web
-npx tsc --noEmit     # typecheck
+npm run typecheck    # tsc --noEmit
+npm run db:generate  # drizzle-kit generate — regenerate SQL migrations from schema.ts
 ```
 
-`npx tsc --noEmit` currently reports two pre-existing errors in the scaffolded `App.tsx` (an implicit `any` on `Item`'s `onPressItem` param, and a null-check on `getFirstAsync` in `migrateDbIfNeeded`). They predate any new work — don't assume you caused them, and fix them if you touch those lines.
+`npm run typecheck` must stay clean; `strict` is on.
 
-There is no test runner, linter, or build script configured — `package.json` defines only the four `expo start` variants. Do not invent `npm test` / `npm run lint`; add the tooling first if a task needs it.
+There is no test runner or linter configured. Do not invent `npm test` / `npm run lint` — add the tooling first if a task needs it. When tests do arrive, colocate them (`money.test.ts` next to `money.ts`), not in a `__tests__/` folder.
 
 ## Architecture
 
-Bare Expo SDK 57 app (React Native 0.86, React 19, TypeScript 6) with no navigation library and no `src/` directory. `App.tsx` is the single entry point and currently holds everything: components, SQLite queries, the migration function, and styles, separated by `//#region` markers.
+Bare Expo SDK 57 app (React Native 0.86, React 19, TypeScript 6). Offline-first expense tracker: **SQLite on the device is the source of truth and there is no network layer at all.** Never introduce a fetch, a sync call, or a remote cache without being asked.
 
-Key structural facts:
-
-- **Not yet an expense app.** The repo is the upstream `expo/examples` *with-sqlite* todo demo (see `README.md`, still titled "SQLite Example"), renamed to `expense-management` in `app.json`/`package.json`. The `ItemEntity` todo model and its `items` table are placeholder scaffolding to be replaced, not domain code to preserve.
-- **No Expo Router.** Routing is absent entirely; `App.tsx` is registered directly. Adding screens means either introducing a navigation library or building an `app/` directory and switching to `expo-router` — both are structural changes worth confirming first.
-- **SQLite access pattern.** `SQLiteProvider` (from `expo-sqlite`) wraps the tree in `App`, opening `db.db` and running `onInit={migrateDbIfNeeded}`. Components reach the handle via `useSQLiteContext()`; DB helpers are plain module-level functions taking `db: SQLiteDatabase` as their first argument rather than hooks. Multi-statement reads use `db.withExclusiveTransactionAsync`.
-- **Migrations are version-gated, not tracked in files.** `migrateDbIfNeeded` compares `PRAGMA user_version` against a `DATABASE_VERSION` constant and applies each step in sequence. To change the schema: bump `DATABASE_VERSION`, add an `if (currentDbVersion === N)` block that migrates forward and reassigns `currentDbVersion`, and leave earlier blocks intact — the final `PRAGMA user_version = ${DATABASE_VERSION}` write applies to all paths. Editing an existing migration in place will not re-run on devices that already stored the newer version.
-- **`expo-sqlite` is registered as a config plugin** in `app.json`; native-affecting deps must be added there too.
+- **Expo Router, `src/app` is routes-only.** Every file under `src/app` is a route and should be a thin wrapper that renders a screen body from `src/screens`. Route-specific concerns (`useLocalSearchParams`, redirects) belong in the route file — see `src/app/transaction/[id].tsx`. Entry point is `"main": "expo-router/entry"` in `package.json`; there is no `App.tsx`.
+- **Screens live in `src/screens/<name>/index.tsx`**, with their private sub-components colocated in `src/screens/<name>/components/`. Only genuinely reusable UI goes in `src/components`.
+- **Drizzle ORM over `expo-sqlite`.** `src/db/client.ts` opens `expense.db` with `enableChangeListener: true` and exports the singleton `db`. Query helpers in `src/db/queries/*.ts` are module-level functions that import that singleton — they do **not** take a `db` argument.
+- **Reads are live queries.** Read helpers return a Drizzle *query object* (not a promise) so screens pass them to `useLiveQuery` from `drizzle-orm/expo-sqlite` and re-render automatically after any write. If a list needs a manual refetch, `enableChangeListener` is missing — that is the bug, don't add a refetch.
+- **Zustand holds UI/session state only** (`src/stores`). It must never mirror DB rows. `use-filter-store` holds the *inputs* to `listTransactionsQuery`; the rows come from `useLiveQuery`. `use-settings-store` persists locale/currency/theme via AsyncStorage.
+- **Migrations are generated, not hand-written.** Edit `src/db/schema.ts`, run `npm run db:generate`, and commit the output in `src/db/migrations/` (both the `.sql` files and `migrations.js`). They are applied at startup by `useMigrations` in `src/app/_layout.tsx`. Never hand-edit a generated migration, and never reintroduce `PRAGMA user_version` gating.
+- **`babel.config.js` and `metro.config.js` exist for Drizzle.** `inline-import` bundles the `.sql` files and Metro resolves the `sql` extension. The Reanimated/worklets Babel plugin is added by `babel-preset-expo` automatically — do not add it manually.
+- **Native-affecting deps must be registered** in `app.json` `plugins`, and installed with `npx expo install` so the SDK-correct version is picked.
 
 ## Conventions
 
-- Single quotes, 2-space indent, semicolons; `StyleSheet.create` at the bottom of the file with alphabetically-grouped style keys.
-- SQLite booleans are stored as `INT` but passed/read as JS booleans through the `expo-sqlite` binding — keep parameters as `true`/`false`, not `1`/`0`.
-- Always parameterize queries with `?` placeholders and positional args, as the existing helpers do.
+- Single quotes, 2-space indent, semicolons. Files are kebab-case; components use named exports (route files use `export default`, as Router requires).
+- `StyleSheet.create` at the bottom of each component file, with alphabetically-ordered style keys. Colors come from `useTheme()` (`src/hooks/use-theme.ts`) and are applied inline; only layout goes in the StyleSheet. Spacing/radius/font tokens come from `src/theme.ts`.
+- **Money is always an integer of minor units** (`amountMinor`). Never a float. All conversion and formatting lives in `src/utils/money.ts`; screens use the `useFormatCurrency()` hook.
+- Timestamps are epoch milliseconds stored as `INTEGER`.
+- **All rows are soft-deleted** (`deletedAt`) and carry `updatedAt`. Every read must filter `isNull(deletedAt)`.
+- IDs are client-generated UUIDs from `src/utils/id.ts` — never rely on autoincrement.
+- **All user-facing strings go through `t()`.** Add the key to both `src/i18n/locales/en.json` and `vi.json`; `en.json` is the source of truth for the typed key union. Seeded categories store an i18n key as their `name` and are resolved with `useCategoryName()`.
+- Import app code via the `@/` alias, not relative paths that climb directories.
+- SQLite booleans are declared `{ mode: 'boolean' }` in the schema and passed as JS booleans.
