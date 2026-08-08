@@ -2,6 +2,7 @@
   "name": "expense-management",
   "slug": "expense-management",
   "scheme": "expense",
+  "icon": "./assets/icon.png",
   "newArchEnabled": true,
   "userInterfaceStyle": "automatic",
   "plugins": [
