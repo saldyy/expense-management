@@ -3,28 +3,40 @@ import { StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { Card } from '@/components/card';
+import { Divider } from '@/components/divider';
+import { useCategoryName } from '@/hooks/use-category-name';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { useTheme } from '@/hooks/use-theme';
-import { fontSize, spacing } from '@/theme';
+import { accentRamp, fontFamily, fontSize, spacing } from '@/theme';
+
+type IncomeSource = {
+  categoryId: string;
+  categoryName: string;
+  categoryIsDefault: boolean;
+  totalMinor: number;
+};
 
 type BalanceCardProps = {
   netMinor: number;
   spentMinor: number;
   earnedMinor: number;
+  incomeSources: IncomeSource[];
 };
 
 export function BalanceCard({
   netMinor,
   spentMinor,
   earnedMinor,
+  incomeSources,
 }: BalanceCardProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const { format } = useFormatCurrency();
+  const categoryName = useCategoryName();
 
   return (
-    <Card>
-      <Text style={[styles.label, { color: theme.textMuted }]}>
+    <Card elevated>
+      <Text style={[styles.kicker, { color: theme.accent }]}>
         {t('overview.balance')}
       </Text>
       <Animated.Text
@@ -35,52 +47,92 @@ export function BalanceCard({
         {format(netMinor)}
       </Animated.Text>
 
-      <View style={[styles.row, { borderTopColor: theme.border }]}>
-        <View style={styles.cell}>
-          <Text style={[styles.label, { color: theme.textMuted }]}>
-            {t('overview.spentThisMonth')}
-          </Text>
-          <Text style={[styles.amount, { color: theme.expense }]}>
-            {format(spentMinor)}
-          </Text>
-        </View>
+      <Divider style={styles.divider} />
+      <View style={styles.row}>
         <View style={styles.cell}>
           <Text style={[styles.label, { color: theme.textMuted }]}>
             {t('overview.earnedThisMonth')}
           </Text>
-          <Text style={[styles.amount, { color: theme.income }]}>
+          <Text style={[styles.amount, { color: theme.text }]}>
             {format(earnedMinor)}
           </Text>
         </View>
+        <View style={styles.cell}>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            {t('overview.spentThisMonth')}
+          </Text>
+          <Text style={[styles.amount, { color: accentRamp[700] }]}>
+            {format(spentMinor)}
+          </Text>
+        </View>
       </View>
+
+      {incomeSources.length > 0 ? (
+        <>
+          <Divider style={styles.divider} />
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            {t('overview.incomeSources')}
+          </Text>
+          <View style={styles.sources}>
+            {incomeSources.map((source) => (
+              <View key={source.categoryId} style={styles.sourceRow}>
+                <Text style={[styles.sourceName, { color: theme.text }]}>
+                  {categoryName(source.categoryName, source.categoryIsDefault)}
+                </Text>
+                <Text style={[styles.sourceAmount, { color: theme.text }]}>
+                  {format(source.totalMinor)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </>
+      ) : null}
     </Card>
   );
 }
 
 const styles = StyleSheet.create({
   amount: {
-    fontSize: fontSize.subtitle,
-    fontWeight: '700',
+    fontFamily: fontFamily.heading,
+    fontSize: fontSize.body,
   },
   balance: {
-    fontSize: fontSize.display,
-    fontWeight: '700',
+    fontFamily: fontFamily.heading,
+    fontSize: 36,
     marginTop: spacing.xs,
   },
   cell: {
     flex: 1,
-    gap: spacing.xs,
+    gap: 3,
+  },
+  divider: {
+    marginVertical: spacing.sm + 2,
+  },
+  kicker: {
+    fontSize: fontSize.caption,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   label: {
     fontSize: fontSize.caption,
-    fontWeight: '600',
-    textTransform: 'uppercase',
   },
   row: {
-    borderTopWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
-    gap: spacing.lg,
-    marginTop: spacing.lg,
-    paddingTop: spacing.lg,
+  },
+  sourceAmount: {
+    fontFamily: fontFamily.semibold,
+    fontSize: fontSize.body,
+  },
+  sourceName: {
+    fontSize: fontSize.body,
+  },
+  sourceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  sources: {
+    gap: spacing.xs,
+    marginTop: spacing.xs,
   },
 });

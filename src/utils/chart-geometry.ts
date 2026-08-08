@@ -82,12 +82,6 @@ export function buildDonutArcs(
 
 export type MonthPoint = { monthKey: string; expenseMinor: number; incomeMinor: number };
 export type BarLayout = { x: number; y: number; width: number; height: number };
-export type MonthColumns = {
-  monthKey: string;
-  clusterCenterX: number;
-  expense: BarLayout;
-  income: BarLayout;
-};
 
 /**
  * Buckets raw rows into the expected month keys, zero-filling gaps. Bucketing
@@ -167,35 +161,34 @@ export function roundedTopRectPath(
   ].join(' ');
 }
 
-export function buildGroupedColumns(
-  points: MonthPoint[],
+export type MonthColumn = { monthKey: string; centerX: number; bar: BarLayout };
+
+/** Single bar per month — used by the Trends screen's total-spend chart. */
+export function buildColumns(
+  points: Array<{ monthKey: string; valueMinor: number }>,
   opts: { width: number; height: number; maxValueMinor: number }
-): MonthColumns[] {
+): MonthColumn[] {
   const { width, height, maxValueMinor } = opts;
   if (points.length === 0 || width <= 0) {
     return [];
   }
   const slotWidth = width / points.length;
-  const barWidth = Math.max(4, Math.min(BAR_MAX_THICKNESS, (slotWidth - BAR_GAP) / 2 - 4));
+  const barWidth = Math.max(4, Math.min(BAR_MAX_THICKNESS * 1.25, slotWidth - spacingBetweenBars(slotWidth)));
   const scaleH = (v: number) => (maxValueMinor > 0 ? (v / maxValueMinor) * height : 0);
 
   return points.map((point, i) => {
-    const clusterWidth = barWidth * 2 + BAR_GAP;
-    const clusterX = i * slotWidth + (slotWidth - clusterWidth) / 2;
-    const expenseH = scaleH(point.expenseMinor);
-    const incomeH = scaleH(point.incomeMinor);
+    const barH = scaleH(point.valueMinor);
+    const x = i * slotWidth + (slotWidth - barWidth) / 2;
     return {
       monthKey: point.monthKey,
-      clusterCenterX: clusterX + clusterWidth / 2,
-      expense: { x: clusterX, y: height - expenseH, width: barWidth, height: expenseH },
-      income: {
-        x: clusterX + barWidth + BAR_GAP,
-        y: height - incomeH,
-        width: barWidth,
-        height: incomeH,
-      },
+      centerX: x + barWidth / 2,
+      bar: { x, y: height - barH, width: barWidth, height: barH },
     };
   });
+}
+
+function spacingBetweenBars(slotWidth: number): number {
+  return Math.min(BAR_GAP * 4, slotWidth * 0.3);
 }
 
 //#endregion

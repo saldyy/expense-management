@@ -1,11 +1,11 @@
 export const DEFAULT_CURRENCY = 'USD';
 
 export const SUPPORTED_CURRENCIES = [
-  { code: 'USD', symbol: '$' },
-  { code: 'EUR', symbol: '€' },
-  { code: 'VND', symbol: '₫' },
-  { code: 'JPY', symbol: '¥' },
-  { code: 'GBP', symbol: '£' },
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'VND', symbol: '₫', name: 'Vietnamese Dong' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
 ] as const;
 
 export const SUPPORTED_LOCALES = [

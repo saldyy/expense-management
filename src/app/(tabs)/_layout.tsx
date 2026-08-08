@@ -1,13 +1,8 @@
 import { Tabs } from 'expo-router';
+import { Home, PieChart, Settings, TrendingUp, Wallet } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, type ColorValue } from 'react-native';
 
 import { useTheme } from '@/hooks/use-theme';
-
-/** Emoji stand-ins keep the scaffold dependency-free; swap for an icon set later. */
-function TabIcon({ icon, color }: { icon: string; color: ColorValue }) {
-  return <Text style={[styles.icon, { color }]}>{icon}</Text>;
-}
 
 export default function TabsLayout() {
   const theme = useTheme();
@@ -20,45 +15,47 @@ export default function TabsLayout() {
         tabBarActiveTintColor: theme.accent,
         tabBarInactiveTintColor: theme.textMuted,
         tabBarStyle: {
-          backgroundColor: theme.surface,
-          borderTopColor: theme.border,
+          backgroundColor: theme.background,
+          borderTopColor: theme.divider,
+          borderTopWidth: 2,
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: t('tabs.overview'),
-          tabBarIcon: ({ color }) => <TabIcon color={color} icon="◎" />,
+          title: t('tabs.home'),
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="categories"
+        options={{
+          title: t('tabs.categories'),
+          tabBarIcon: ({ color, size }) => <PieChart color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="trends"
+        options={{
+          title: t('tabs.trends'),
+          tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="transactions"
         options={{
           title: t('tabs.transactions'),
-          tabBarIcon: ({ color }) => <TabIcon color={color} icon="≡" />,
-        }}
-      />
-      <Tabs.Screen
-        name="stats"
-        options={{
-          title: t('tabs.stats'),
-          tabBarIcon: ({ color }) => <TabIcon color={color} icon="◔" />,
+          tabBarIcon: ({ color, size }) => <Wallet color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: t('tabs.settings'),
-          tabBarIcon: ({ color }) => <TabIcon color={color} icon="⚙" />,
+          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
         }}
       />
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  icon: {
-    fontSize: 20,
-  },
-});

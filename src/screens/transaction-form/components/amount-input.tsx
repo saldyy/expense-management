@@ -1,33 +1,30 @@
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-import type { TransactionType } from '@/db/schema';
 import { useTheme } from '@/hooks/use-theme';
-import { fontSize, spacing } from '@/theme';
+import { fontFamily, fontSize, radius, spacing } from '@/theme';
 
 type AmountInputProps = {
   value: string;
   onChangeText: (value: string) => void;
   currency: string;
-  type: TransactionType;
 };
 
-export function AmountInput({
-  value,
-  onChangeText,
-  currency,
-  type,
-}: AmountInputProps) {
+export function AmountInput({ value, onChangeText, currency }: AmountInputProps) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const accentColor = type === 'expense' ? theme.expense : theme.income;
 
   return (
     <View style={styles.container}>
       <Text style={[styles.label, { color: theme.textMuted }]}>
         {t('form.amount')}
       </Text>
-      <View style={styles.row}>
+      <View
+        style={[
+          styles.box,
+          { backgroundColor: theme.surface, borderColor: theme.divider },
+        ]}
+      >
         <Text style={[styles.currency, { color: theme.textMuted }]}>
           {currency}
         </Text>
@@ -38,7 +35,7 @@ export function AmountInput({
           onChangeText={onChangeText}
           placeholder="0"
           placeholderTextColor={theme.textMuted}
-          style={[styles.input, { color: accentColor }]}
+          style={[styles.input, { color: theme.text }]}
           value={value}
         />
       </View>
@@ -47,27 +44,29 @@ export function AmountInput({
 }
 
 const styles = StyleSheet.create({
+  box: {
+    alignItems: 'baseline',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    minHeight: 36,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
   container: {
-    gap: spacing.xs,
+    gap: 5,
   },
   currency: {
-    fontSize: fontSize.subtitle,
-    fontWeight: '600',
+    fontSize: fontSize.body,
   },
   input: {
     flex: 1,
-    fontSize: 44,
-    fontWeight: '700',
+    fontFamily: fontFamily.heading,
+    fontSize: fontSize.h4,
     padding: 0,
   },
   label: {
-    fontSize: fontSize.caption,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
-  row: {
-    alignItems: 'baseline',
-    flexDirection: 'row',
-    gap: spacing.sm,
+    fontSize: 12,
   },
 });

@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useRouter } from 'expo-router';
+import { X } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,9 +15,10 @@ import {
 
 import { AmountInput } from './components/amount-input';
 import { CategoryPicker } from './components/category-picker';
-import { TypeToggle } from './components/type-toggle';
 import { Button } from '@/components/button';
+import { IconButton } from '@/components/icon-button';
 import { ScreenContainer } from '@/components/screen-container';
+import { SegmentedControl } from '@/components/segmented-control';
 import { TextField } from '@/components/text-field';
 import { listAccountsQuery } from '@/db/queries/accounts';
 import { listCategoriesQuery } from '@/db/queries/categories';
@@ -26,10 +28,10 @@ import {
   transactionByIdQuery,
   updateTransaction,
 } from '@/db/queries/transactions';
-import type { TransactionType } from '@/db/schema';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { useTheme } from '@/hooks/use-theme';
-import { fontSize, spacing } from '@/theme';
+import { useTransactionDraftStore } from '@/stores/use-transaction-draft-store';
+import { accentRamp, fontFamily, fontSize, radius, spacing } from '@/theme';
 import { formatFullDate } from '@/utils/date';
 import { formatMinorForInput, parseAmountToMinor } from '@/utils/money';
 
@@ -46,9 +48,12 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
 
   const isEditing = Boolean(transactionId);
 
-  const [type, setType] = useState<TransactionType>('expense');
+  const type = useTransactionDraftStore((state) => state.type);
+  const categoryId = useTransactionDraftStore((state) => state.categoryId);
+  const setType = useTransactionDraftStore((state) => state.setType);
+  const setCategoryId = useTransactionDraftStore((state) => state.setCategoryId);
+
   const [amount, setAmount] = useState('');
-  const [categoryId, setCategoryId] = useState<string | null>(null);
   const [note, setNote] = useState('');
   const [occurredAt, setOccurredAt] = useState(() => Date.now());
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +68,15 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
     [transactionId]
   );
 
+  // Fresh "new" form: reset the shared draft rather than inheriting whatever
+  // a previous Add/Edit session left behind.
+  useEffect(() => {
+    if (!isEditing) {
+      setType('expense');
+    }
+    // Only on mount — the draft store is the source of truth from here on.
+  }, []);
+
   // Prefill once when editing; later live updates must not clobber user input.
   useEffect(() => {
     const row = existing[0];
@@ -75,7 +89,7 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
     setNote(row.note ?? '');
     setOccurredAt(row.occurredAt);
     setPrefilled(true);
-  }, [currency, existing, isEditing, prefilled]);
+  }, [currency, existing, isEditing, prefilled, setCategoryId, setType]);
 
   // Keep a valid selection when the category list changes with the type.
   useEffect(() => {
@@ -86,7 +100,9 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
     if (!stillValid) {
       setCategoryId(categories[0].id);
     }
-  }, [categories, categoryId]);
+  }, [categories, categoryId, setCategoryId]);
+
+  const selectedCategory = categories.find((category) => category.id === categoryId) ?? null;
 
   async function handleSave() {
     const amountMinor = parseAmountToMinor(amount, currency);
@@ -149,6 +165,13 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
     }
   }
 
+  const title = isEditing
+    ? t('form.editTransaction')
+    : type === 'income'
+      ? t('form.addIncome')
+      : t('form.addExpense');
+  const saveLabel = type === 'income' ? t('form.saveIncome') : t('form.saveExpense');
+
   return (
     <ScreenContainer edges={{ top: true, bottom: true }}>
       <KeyboardAvoidingView
@@ -156,15 +179,8 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
         style={styles.flex}
       >
         <View style={styles.header}>
-          <Text style={[styles.heading, { color: theme.text }]}>
-            {isEditing ? t('form.editTitle') : t('form.newTitle')}
-          </Text>
-          <Button
-            label={t('common.cancel')}
-            onPress={() => router.back()}
-            style={styles.cancel}
-            variant="secondary"
-          />
+          <IconButton icon={X} label={t('common.cancel')} onPress={() => router.back()} />
+          <Text style={[styles.heading, { color: theme.text }]}>{title}</Text>
         </View>
 
         <ScrollView
@@ -172,31 +188,36 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <TypeToggle onChange={setType} value={type} />
-
-          <AmountInput
-            currency={currency}
-            onChangeText={(next) => {
-              setAmount(next);
-              setError(null);
-            }}
-            type={type}
-            value={amount}
+          <SegmentedControl
+            onChange={setType}
+            options={[
+              { value: 'expense', label: t('common.expense') },
+              { value: 'income', label: t('common.income') },
+            ]}
+            value={type}
           />
 
-          <CategoryPicker
-            categories={categories}
-            onSelect={setCategoryId}
-            selectedId={categoryId}
-          />
+          <AmountInput currency={currency} onChangeText={(next) => {
+            setAmount(next);
+            setError(null);
+          }} value={amount} />
 
-          <View style={styles.dateRow}>
-            <Text style={[styles.dateLabel, { color: theme.textMuted }]}>
+          <CategoryPicker selected={selectedCategory} />
+
+          <View style={styles.field}>
+            <Text style={[styles.label, { color: theme.textMuted }]}>
               {t('form.date')}
             </Text>
-            <Text style={[styles.dateValue, { color: theme.text }]}>
-              {formatFullDate(occurredAt, locale)}
-            </Text>
+            <View
+              style={[
+                styles.dateBox,
+                { backgroundColor: theme.surface, borderColor: theme.divider },
+              ]}
+            >
+              <Text style={[styles.dateValue, { color: theme.text }]}>
+                {formatFullDate(occurredAt, locale)}
+              </Text>
+            </View>
           </View>
 
           <TextField
@@ -207,16 +228,11 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
           />
 
           {error ? (
-            <Text style={[styles.error, { color: theme.expense }]}>{error}</Text>
+            <Text style={[styles.error, { color: accentRamp[700] }]}>{error}</Text>
           ) : null}
         </ScrollView>
 
-        <Button
-          label={t('common.save')}
-          loading={saving}
-          onPress={handleSave}
-          style={styles.save}
-        />
+        <Button label={saveLabel} loading={saving} onPress={handleSave} style={styles.save} />
         {isEditing ? (
           <Button
             label={t('common.delete')}
@@ -232,27 +248,19 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
 }
 
 const styles = StyleSheet.create({
-  cancel: {
-    minHeight: 36,
-    paddingHorizontal: spacing.md,
-  },
   content: {
     gap: spacing.lg,
     paddingBottom: spacing.xl,
   },
-  dateLabel: {
-    fontSize: fontSize.caption,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
-  dateRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  dateBox: {
+    borderRadius: radius.md,
+    borderWidth: 1,
+    minHeight: 36,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   dateValue: {
     fontSize: fontSize.body,
-    fontWeight: '600',
   },
   delete: {
     marginBottom: spacing.md,
@@ -260,19 +268,25 @@ const styles = StyleSheet.create({
   error: {
     fontSize: fontSize.body,
   },
+  field: {
+    gap: 5,
+  },
   flex: {
     flex: 1,
   },
   header: {
     alignItems: 'center',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: spacing.md,
     paddingBottom: spacing.lg,
     paddingTop: spacing.md,
   },
   heading: {
-    fontSize: fontSize.title,
-    fontWeight: '700',
+    fontFamily: fontFamily.heading,
+    fontSize: fontSize.h4,
+  },
+  label: {
+    fontSize: 12,
   },
   save: {
     marginBottom: spacing.md,

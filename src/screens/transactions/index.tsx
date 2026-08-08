@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useRouter } from 'expo-router';
+import { Search, SlidersVertical } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
@@ -8,6 +9,7 @@ import { AddButton } from './components/add-button';
 import { DayHeader } from './components/day-header';
 import { TransactionRow } from './components/transaction-row';
 import { EmptyState } from '@/components/empty-state';
+import { IconButton } from '@/components/icon-button';
 import { ScreenContainer } from '@/components/screen-container';
 import {
   listTransactionsQuery,
@@ -15,9 +17,8 @@ import {
   type TransactionListItem,
 } from '@/db/queries/transactions';
 import { useTheme } from '@/hooks/use-theme';
-import { MonthSwitcher } from '@/screens/overview/components/month-switcher';
 import { useFilterStore } from '@/stores/use-filter-store';
-import { fontSize, spacing } from '@/theme';
+import { fontFamily, fontSize, spacing } from '@/theme';
 import { dayKey, monthRange } from '@/utils/date';
 
 type DaySection = {
@@ -47,6 +48,8 @@ export function Transactions() {
   const theme = useTheme();
   const router = useRouter();
 
+  // No on-screen month switcher here (matches the mockup) — `monthCursor` is
+  // shared Zustand state driven from Home, so this list stays live either way.
   const monthCursor = useFilterStore((state) => state.monthCursor);
   const categoryId = useFilterStore((state) => state.categoryId);
   const accountId = useFilterStore((state) => state.accountId);
@@ -65,7 +68,18 @@ export function Transactions() {
         <Text style={[styles.heading, { color: theme.text }]}>
           {t('transactions.title')}
         </Text>
-        <MonthSwitcher />
+        <View style={styles.headerActions}>
+          <IconButton
+            icon={Search}
+            label={t('transactions.search')}
+            onPress={() => {}}
+          />
+          <IconButton
+            icon={SlidersVertical}
+            label={t('transactions.filter')}
+            onPress={() => router.push('/transaction/filter')}
+          />
+        </View>
       </View>
 
       <SectionList
@@ -100,16 +114,21 @@ export function Transactions() {
 
 const styles = StyleSheet.create({
   content: {
-    gap: spacing.xs,
     paddingBottom: 96,
   },
   header: {
-    gap: spacing.md,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingBottom: spacing.md,
     paddingTop: spacing.md,
   },
+  headerActions: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
   heading: {
-    fontSize: fontSize.display,
-    fontWeight: '700',
+    fontFamily: fontFamily.heading,
+    fontSize: fontSize.h4,
   },
 });

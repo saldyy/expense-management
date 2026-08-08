@@ -1,10 +1,10 @@
-import { OptionList } from './option-row';
+import { RadioList } from '@/components/radio-list';
 import { SUPPORTED_CURRENCIES, type CurrencyCode } from '@/constants';
 import { useCurrency, useSettingsStore } from '@/stores/use-settings-store';
 
 const OPTIONS = SUPPORTED_CURRENCIES.map((currency) => ({
   value: currency.code,
-  label: `${currency.symbol}  ${currency.code}`,
+  label: `${currency.code} — ${currency.name}`,
 }));
 
 export function CurrencyPicker() {
@@ -12,10 +12,6 @@ export function CurrencyPicker() {
   const setCurrency = useSettingsStore((state) => state.setCurrency);
 
   return (
-    <OptionList<CurrencyCode>
-      onSelect={setCurrency}
-      options={OPTIONS}
-      selected={currency}
-    />
+    <RadioList<CurrencyCode> onChange={setCurrency} options={OPTIONS} value={currency} />
   );
 }

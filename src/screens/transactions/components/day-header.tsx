@@ -19,10 +19,11 @@ export function DayHeader({ dayKey }: { dayKey: string }) {
 
 const styles = StyleSheet.create({
   heading: {
-    fontSize: fontSize.caption,
+    fontSize: fontSize.h6,
     fontWeight: '700',
+    letterSpacing: 0.5,
     paddingBottom: spacing.xs,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.md,
     textTransform: 'uppercase',
   },
 });
