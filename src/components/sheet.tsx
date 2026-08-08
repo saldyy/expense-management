@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, SlideInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/hooks/use-theme';
@@ -56,7 +56,7 @@ export function Sheet({ children, anchor = 'bottom', onClose }: SheetProps) {
         <Animated.View
           entering={
             anchor === 'bottom'
-              ? SlideInDown.duration(240).springify().damping(22)
+              ? SlideInDown.duration(240).easing(Easing.out(Easing.cubic))
               : FadeIn.duration(200)
           }
           style={[
