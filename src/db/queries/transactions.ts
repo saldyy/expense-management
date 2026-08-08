@@ -76,8 +76,11 @@ export function totalsByTypeQuery(filter: TransactionFilter) {
     .groupBy(transactions.type);
 }
 
-/** Expense totals per category for the filtered range, biggest first. */
-export function spendingByCategoryQuery(filter: TransactionFilter) {
+/** Totals per category for the filtered range and type, biggest first. */
+export function spendingByCategoryQuery(
+  filter: TransactionFilter,
+  type: TransactionType = 'expense'
+) {
   return db
     .select({
       categoryId: categories.id,
@@ -89,7 +92,7 @@ export function spendingByCategoryQuery(filter: TransactionFilter) {
     })
     .from(transactions)
     .innerJoin(categories, eq(categories.id, transactions.categoryId))
-    .where(and(filterConditions(filter), eq(transactions.type, 'expense')))
+    .where(and(filterConditions(filter), eq(transactions.type, type)))
     .groupBy(categories.id)
     .orderBy(desc(sql`total_minor`));
 }

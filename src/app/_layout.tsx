@@ -1,6 +1,12 @@
 import 'react-native-gesture-handler';
 import '@/i18n';
 
+import {
+  Archivo_400Regular,
+  Archivo_600SemiBold,
+  Archivo_800ExtraBold,
+  useFonts,
+} from '@expo-google-fonts/archivo';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -19,6 +25,11 @@ import { fontSize, spacing } from '@/theme';
 export default function RootLayout() {
   const { success, error } = useMigrations(db, migrations);
   const [seeded, setSeeded] = useState(false);
+  const [fontsLoaded] = useFonts({
+    Archivo_400Regular,
+    Archivo_600SemiBold,
+    Archivo_800ExtraBold,
+  });
 
   useEffect(() => {
     if (!success) {
@@ -35,7 +46,7 @@ export default function RootLayout() {
         <AppChrome />
         {error ? (
           <MigrationError message={error.message} />
-        ) : !success || !seeded ? (
+        ) : !success || !seeded || !fontsLoaded ? (
           <Loading />
         ) : (
           <Stack screenOptions={{ headerShown: false }}>
@@ -47,6 +58,26 @@ export default function RootLayout() {
             <Stack.Screen
               name="transaction/[id]"
               options={{ presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="transaction/select-category"
+              options={{ presentation: 'transparentModal', animation: 'fade' }}
+            />
+            <Stack.Screen
+              name="transaction/filter"
+              options={{ presentation: 'transparentModal', animation: 'fade' }}
+            />
+            <Stack.Screen
+              name="category/new"
+              options={{ presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="category/[id]"
+              options={{ presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="category/[id]/delete"
+              options={{ presentation: 'transparentModal', animation: 'fade' }}
             />
           </Stack>
         )}
@@ -111,7 +142,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: fontSize.title,
+    fontSize: fontSize.h3,
     fontWeight: '700',
     textAlign: 'center',
   },

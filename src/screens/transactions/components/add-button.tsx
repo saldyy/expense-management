@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Plus } from 'lucide-react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -29,14 +30,14 @@ export function AddButton({ label, onPress }: AddButtonProps) {
       accessibilityRole="button"
       onPress={onPress}
       onPressIn={() => {
-        scale.value = withSpring(0.9, { damping: 14 });
+        scale.value = withSpring(0.92, { damping: 14 });
       }}
       onPressOut={() => {
         scale.value = withSpring(1, { damping: 14 });
       }}
       style={[styles.fab, { backgroundColor: theme.accent }, animatedStyle]}
     >
-      <Text style={styles.plus}>＋</Text>
+      <Plus color={theme.background} size={22} strokeWidth={2.5} />
     </AnimatedPressable>
   );
 }
@@ -44,22 +45,16 @@ export function AddButton({ label, onPress }: AddButtonProps) {
 const styles = StyleSheet.create({
   fab: {
     alignItems: 'center',
-    borderRadius: radius.pill,
-    bottom: spacing.xl,
+    borderRadius: radius.md,
+    bottom: 88,
     elevation: 4,
-    height: 60,
+    height: 52,
     justifyContent: 'center',
     position: 'absolute',
-    right: 0,
+    right: spacing.lg,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
-    width: 60,
-  },
-  plus: {
-    color: '#FFFFFF',
-    fontSize: 28,
-    fontWeight: '600',
-    lineHeight: 32,
+    width: 52,
   },
 });

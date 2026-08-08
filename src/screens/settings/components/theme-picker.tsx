@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { OptionList } from './option-row';
+import { SegmentedControl } from '@/components/segmented-control';
 import {
   useSettingsStore,
   useThemeMode,
@@ -19,10 +19,10 @@ export function ThemePicker() {
   ];
 
   return (
-    <OptionList<ThemeMode>
-      onSelect={setThemeMode}
+    <SegmentedControl<ThemeMode>
+      onChange={setThemeMode}
       options={options}
-      selected={themeMode}
+      value={themeMode}
     />
   );
 }

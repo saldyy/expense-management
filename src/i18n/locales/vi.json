@@ -11,29 +11,63 @@
     "goHome": "Về trang chủ"
   },
   "tabs": {
-    "overview": "Tổng quan",
+    "home": "Trang chủ",
+    "categories": "Danh mục",
+    "trends": "Xu hướng",
     "transactions": "Giao dịch",
-    "stats": "Thống kê",
     "settings": "Cài đặt"
   },
   "overview": {
-    "title": "Tổng quan",
-    "balance": "Số dư hiện tại",
-    "spentThisMonth": "Đã chi",
-    "earnedThisMonth": "Đã thu",
-    "topCategories": "Danh mục chi nhiều nhất",
-    "noSpending": "Chưa có khoản chi nào trong tháng này."
+    "balance": "Số Dư Ròng",
+    "spentThisMonth": "Chi tiêu",
+    "earnedThisMonth": "Thu nhập",
+    "incomeSources": "Nguồn Thu Nhập",
+    "topCategory": "Danh Mục Hàng Đầu",
+    "recent": "Gần Đây",
+    "seeAll": "Xem tất cả"
   },
   "transactions": {
     "title": "Giao dịch",
     "empty": "Chưa có giao dịch nào",
     "emptyHint": "Chạm + để ghi giao dịch đầu tiên.",
     "add": "Thêm giao dịch",
-    "deleted": "Đã xoá giao dịch"
+    "deleted": "Đã xoá giao dịch",
+    "search": "Tìm kiếm",
+    "filter": "Lọc"
+  },
+  "transactionFilter": {
+    "title": "Lọc Giao Dịch",
+    "month": "Tháng",
+    "type": "Loại",
+    "category": "Danh mục",
+    "all": "Tất cả",
+    "reset": "Đặt lại",
+    "apply": "Áp Dụng Bộ Lọc",
+    "previousYear": "Năm trước",
+    "nextYear": "Năm sau"
+  },
+  "selectCategory": {
+    "title": "Chọn Danh Mục",
+    "newCategory": "Danh Mục Mới",
+    "done": "Xong"
+  },
+  "categoryForm": {
+    "addTitle": "Thêm Danh Mục",
+    "editTitle": "Sửa Danh Mục",
+    "name": "Tên",
+    "namePlaceholder": "VD: Đi chợ",
+    "color": "Màu sắc",
+    "saveCategory": "Lưu Danh Mục",
+    "deleteCategory": "Xoá Danh Mục"
+  },
+  "deleteCategoryScreen": {
+    "titleTemplate": "Xoá {{name}}?",
+    "body": "Danh mục này có các giao dịch liên quan. Xoá danh mục sẽ xoá vĩnh viễn tất cả các giao dịch đó. Không thể hoàn tác."
   },
   "form": {
-    "newTitle": "Giao dịch mới",
-    "editTitle": "Sửa giao dịch",
+    "addExpense": "Thêm Chi Tiêu",
+    "addIncome": "Thêm Thu Nhập",
+    "editTransaction": "Sửa Giao Dịch",
     "amount": "Số tiền",
     "category": "Danh mục",
     "date": "Ngày",
@@ -42,7 +76,9 @@
     "missingAmount": "Nhập số tiền lớn hơn 0.",
     "missingCategory": "Chọn một danh mục.",
     "deleteConfirmTitle": "Xoá giao dịch này?",
-    "deleteConfirmMessage": "Không thể hoàn tác."
+    "deleteConfirmMessage": "Không thể hoàn tác.",
+    "saveExpense": "Lưu Chi Tiêu",
+    "saveIncome": "Lưu Thu Nhập"
   },
   "settings": {
     "title": "Cài đặt",
@@ -79,14 +115,33 @@
     "refund": "Hoàn tiền",
     "otherIncome": "Thu nhập khác"
   },
+  "categoriesScreen": {
+    "title": "Danh Mục",
+    "addCategory": "Thêm danh mục",
+    "editCategory": "Sửa danh mục",
+    "deleteCategory": "Xoá danh mục",
+    "expenseTab": "Chi tiêu",
+    "incomeTab": "Thu nhập",
+    "totalSuffix": "tổng cộng",
+    "analysisKicker": "Phân Tích",
+    "analysisExpense": "{{name}} là danh mục lớn nhất của bạn, chiếm {{pct}}% chi tiêu. {{smallName}} nhỏ nhất với {{smallPct}}%.",
+    "analysisExpenseSingle": "{{name}} là danh mục duy nhất có chi tiêu trong tháng này, chiếm {{pct}}%.",
+    "analysisIncome": "{{name}} là nguồn thu nhập lớn nhất của bạn, chiếm {{pct}}% thu nhập. {{smallName}} nhỏ nhất với {{smallPct}}%.",
+    "analysisIncomeSingle": "{{name}} là nguồn thu nhập duy nhất trong tháng này, chiếm {{pct}}%.",
+    "noActivity": "Không có danh mục nào phát sinh trong tháng này."
+  },
   "accounts": {
     "cash": "Tiền mặt"
   },
-  "stats": {
-    "title": "Thống kê",
-    "expenseVsIncome": "Chi tiêu và thu nhập",
-    "netThisMonth": "Số dư ròng",
-    "sixMonthTrend": "Xu hướng 6 tháng",
+  "trends": {
+    "title": "Xu Hướng",
+    "subtitle": "6 tháng gần đây",
+    "insightKicker": "Nhận Định",
+    "insightUp": "Chi tiêu tăng {{amount}} ({{pct}}%) so với {{month}}.",
+    "insightDown": "Chi tiêu giảm {{amount}} ({{pct}}%) so với {{month}}.",
+    "insightFlat": "Chi tiêu không đổi so với {{month}}.",
+    "insightNew": "Bạn đã chi {{amount}} trong tháng này, không có chi tiêu vào {{month}}.",
+    "categoryShift": "Biến Động Danh Mục So Với Tháng Trước",
     "noActivity": "Chưa có giao dịch nào trong tháng này."
   },
   "migration": {

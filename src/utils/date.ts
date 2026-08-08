@@ -59,3 +59,8 @@ export function trailingMonthKeys(date: Date, count: number): string[] {
 export function formatMonthShort(date: Date, locale: string): string {
   return format(date, 'LLL', { locale: localeFor(locale) });
 }
+
+/** '9:12 AM' — time-of-day for transaction rows. */
+export function formatTime(timestamp: number, locale: string): string {
+  return format(new Date(timestamp), 'h:mm a', { locale: localeFor(locale) });
+}

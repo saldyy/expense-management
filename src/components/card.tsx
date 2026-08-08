@@ -1,22 +1,25 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View, type ViewStyle } from 'react-native';
+import { Platform, StyleSheet, View, type ViewStyle } from 'react-native';
 
 import { useTheme } from '@/hooks/use-theme';
 import { radius, spacing } from '@/theme';
 
 type CardProps = {
   children: ReactNode;
+  /** Adds a soft shadow — used sparingly (Net Balance, Insight/Analysis callouts). */
+  elevated?: boolean;
   style?: ViewStyle;
 };
 
-export function Card({ children, style }: CardProps) {
+export function Card({ children, elevated = false, style }: CardProps) {
   const theme = useTheme();
 
   return (
     <View
       style={[
         styles.card,
-        { backgroundColor: theme.surface, borderColor: theme.border },
+        { backgroundColor: theme.surface },
+        elevated && styles.elevated,
         style,
       ]}
     >
@@ -27,8 +30,19 @@ export function Card({ children, style }: CardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: spacing.lg,
+    borderRadius: radius.md,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  elevated: {
+    ...Platform.select({
+      ios: {
+        shadowColor: '#2d2b2b',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.14,
+        shadowRadius: 2,
+      },
+      android: { elevation: 2 },
+    }),
   },
 });

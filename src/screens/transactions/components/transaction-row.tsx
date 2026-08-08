@@ -7,13 +7,14 @@ import Animated, {
   LinearTransition,
 } from 'react-native-reanimated';
 
+import { Tag } from '@/components/tag';
 import type { TransactionListItem } from '@/db/queries/transactions';
 import { useCategoryName } from '@/hooks/use-category-name';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { useTheme } from '@/hooks/use-theme';
 import { useLocale } from '@/stores/use-settings-store';
-import { fontSize, radius, spacing } from '@/theme';
-import { formatFullDate } from '@/utils/date';
+import { accentRamp, fontFamily, fontSize, radius, spacing } from '@/theme';
+import { formatTime } from '@/utils/date';
 
 type TransactionRowProps = {
   item: TransactionListItem;
@@ -24,10 +25,9 @@ type TransactionRowProps = {
 export function TransactionRow({ item, onPress, onDelete }: TransactionRowProps) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const locale = useLocale();
   const { formatSigned } = useFormatCurrency();
   const categoryName = useCategoryName();
-  const locale = useLocale();
-  const date = formatFullDate(item.occurredAt, locale);
 
   return (
     <Animated.View
@@ -41,7 +41,7 @@ export function TransactionRow({ item, onPress, onDelete }: TransactionRowProps)
           <Pressable
             accessibilityRole="button"
             onPress={onDelete}
-            style={[styles.deleteAction, { backgroundColor: theme.expense }]}
+            style={[styles.deleteAction, { backgroundColor: accentRamp[700] }]}
           >
             <Text style={styles.deleteLabel}>{t('common.delete')}</Text>
           </Pressable>
@@ -52,37 +52,29 @@ export function TransactionRow({ item, onPress, onDelete }: TransactionRowProps)
           onPress={onPress}
           style={({ pressed }) => [
             styles.row,
-            {
-              backgroundColor: theme.surface,
-              borderColor: theme.border,
-              opacity: pressed ? 0.7 : 1,
-            },
+            { borderBottomColor: theme.divider, opacity: pressed ? 0.7 : 1 },
           ]}
         >
-          <View style={[styles.iconBadge, { backgroundColor: theme.surfaceAlt }]}>
-            <Text style={styles.icon}>{item.categoryIcon}</Text>
-          </View>
+          <View style={[styles.bar, { backgroundColor: item.categoryColor }]} />
 
           <View style={styles.details}>
             <Text style={[styles.category, { color: theme.text }]}>
               {categoryName(item.categoryName, item.categoryIsDefault)}
             </Text>
-            <Text
-              numberOfLines={1}
-              style={[styles.meta, { color: theme.textMuted }]}
-            >
-              {item.note ? `${date} · ${item.note}` : date}
-            </Text>
+            <Tag
+              label={item.note || categoryName(item.categoryName, item.categoryIsDefault)}
+              variant="neutral"
+            />
           </View>
 
-          <Text
-            style={[
-              styles.amount,
-              { color: item.type === 'expense' ? theme.expense : theme.income },
-            ]}
-          >
-            {formatSigned(item.amountMinor, item.type)}
-          </Text>
+          <View style={styles.right}>
+            <Text style={[styles.amount, { color: theme.text }]}>
+              {formatSigned(item.amountMinor, item.type)}
+            </Text>
+            <Text style={[styles.time, { color: theme.textMuted }]}>
+              {formatTime(item.occurredAt, locale)}
+            </Text>
+          </View>
         </Pressable>
       </Swipeable>
     </Animated.View>
@@ -91,12 +83,16 @@ export function TransactionRow({ item, onPress, onDelete }: TransactionRowProps)
 
 const styles = StyleSheet.create({
   amount: {
-    fontSize: fontSize.subtitle,
-    fontWeight: '700',
+    fontFamily: fontFamily.heading,
+    fontSize: fontSize.body,
+  },
+  bar: {
+    alignSelf: 'stretch',
+    borderRadius: 2,
+    width: 4,
   },
   category: {
     fontSize: fontSize.body,
-    fontWeight: '600',
   },
   deleteAction: {
     alignItems: 'center',
@@ -107,33 +103,27 @@ const styles = StyleSheet.create({
   },
   deleteLabel: {
     color: '#FFFFFF',
+    fontFamily: fontFamily.heading,
     fontSize: fontSize.body,
-    fontWeight: '700',
   },
   details: {
+    alignItems: 'flex-start',
     flex: 1,
+    gap: spacing.xs,
+    minWidth: 0,
+  },
+  right: {
+    alignItems: 'flex-end',
     gap: 2,
-  },
-  icon: {
-    fontSize: fontSize.subtitle,
-  },
-  iconBadge: {
-    alignItems: 'center',
-    borderRadius: radius.pill,
-    height: 40,
-    justifyContent: 'center',
-    width: 40,
-  },
-  meta: {
-    fontSize: fontSize.caption,
   },
   row: {
     alignItems: 'center',
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: 1,
     flexDirection: 'row',
-    gap: spacing.md,
-    marginVertical: 3,
-    padding: spacing.md,
+    gap: spacing.sm,
+    paddingVertical: spacing.sm + 1,
+  },
+  time: {
+    fontSize: 10,
   },
 });

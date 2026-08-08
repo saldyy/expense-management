@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    fontSize: fontSize.subtitle,
+    fontSize: fontSize.h5,
     fontWeight: '600',
   },
 });

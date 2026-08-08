@@ -6,10 +6,10 @@ import { CurrencyPicker } from './components/currency-picker';
 import { EraseDataButton } from './components/erase-data-button';
 import { LocalePicker } from './components/locale-picker';
 import { ThemePicker } from './components/theme-picker';
-import { Card } from '@/components/card';
+import { Divider } from '@/components/divider';
 import { ScreenContainer } from '@/components/screen-container';
 import { useTheme } from '@/hooks/use-theme';
-import { fontSize, spacing } from '@/theme';
+import { fontFamily, fontSize, spacing } from '@/theme';
 
 export function Settings() {
   const { t } = useTranslation();
@@ -25,24 +25,28 @@ export function Settings() {
           {t('settings.title')}
         </Text>
 
+        <Section title={t('settings.appearance')}>
+          <ThemePicker />
+        </Section>
+
+        <Divider />
+
         <Section title={t('settings.language')}>
           <LocalePicker />
         </Section>
+
+        <Divider />
 
         <Section title={t('settings.currency')}>
           <CurrencyPicker />
         </Section>
 
-        <Section title={t('settings.appearance')}>
-          <ThemePicker />
-        </Section>
+        <Divider />
 
         <Section title={t('settings.data')}>
-          <Card>
-            <Text style={[styles.notice, { color: theme.textMuted }]}>
-              {t('settings.offlineNotice')}
-            </Text>
-          </Card>
+          <Text style={[styles.notice, { color: theme.textMuted }]}>
+            {t('settings.offlineNotice')}
+          </Text>
           <EraseDataButton />
         </Section>
       </ScrollView>
@@ -50,20 +54,12 @@ export function Settings() {
   );
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   const theme = useTheme();
 
   return (
     <View style={styles.section}>
-      <Text style={[styles.sectionHeading, { color: theme.textMuted }]}>
-        {title}
-      </Text>
+      <Text style={[styles.sectionHeading, { color: theme.textMuted }]}>{title}</Text>
       {children}
     </View>
   );
@@ -71,24 +67,27 @@ function Section({
 
 const styles = StyleSheet.create({
   content: {
-    gap: spacing.xl,
     paddingBottom: spacing.xxl,
     paddingTop: spacing.md,
   },
   heading: {
-    fontSize: fontSize.display,
-    fontWeight: '700',
+    fontFamily: fontFamily.heading,
+    fontSize: fontSize.h4,
+    marginBottom: spacing.md,
   },
   notice: {
-    fontSize: fontSize.body,
-    lineHeight: 21,
+    fontSize: fontSize.caption,
+    lineHeight: 19,
+    marginBottom: spacing.sm,
   },
   section: {
     gap: spacing.sm,
   },
   sectionHeading: {
-    fontSize: fontSize.caption,
+    fontSize: fontSize.h6,
     fontWeight: '700',
+    letterSpacing: 0.5,
+    marginBottom: spacing.xs,
     textTransform: 'uppercase',
   },
 });

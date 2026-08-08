@@ -11,29 +11,63 @@
     "goHome": "Go to home screen"
   },
   "tabs": {
-    "overview": "Overview",
+    "home": "Home",
+    "categories": "Categories",
+    "trends": "Trends",
     "transactions": "Transactions",
-    "stats": "Stats",
     "settings": "Settings"
   },
   "overview": {
-    "title": "Overview",
-    "balance": "Current balance",
-    "spentThisMonth": "Spent",
-    "earnedThisMonth": "Earned",
-    "topCategories": "Top categories",
-    "noSpending": "No spending recorded this month."
+    "balance": "Net Balance",
+    "spentThisMonth": "Expenses",
+    "earnedThisMonth": "Income",
+    "incomeSources": "Income Sources",
+    "topCategory": "Top Category",
+    "recent": "Recent",
+    "seeAll": "See all"
   },
   "transactions": {
     "title": "Transactions",
     "empty": "No transactions yet",
     "emptyHint": "Tap + to record your first one.",
     "add": "Add transaction",
-    "deleted": "Transaction deleted"
+    "deleted": "Transaction deleted",
+    "search": "Search",
+    "filter": "Filter"
+  },
+  "transactionFilter": {
+    "title": "Filter Transactions",
+    "month": "Month",
+    "type": "Type",
+    "category": "Category",
+    "all": "All",
+    "reset": "Reset",
+    "apply": "Apply Filters",
+    "previousYear": "Previous year",
+    "nextYear": "Next year"
+  },
+  "selectCategory": {
+    "title": "Select Category",
+    "newCategory": "New Category",
+    "done": "Done"
+  },
+  "categoryForm": {
+    "addTitle": "Add Category",
+    "editTitle": "Edit Category",
+    "name": "Name",
+    "namePlaceholder": "e.g. Groceries",
+    "color": "Color",
+    "saveCategory": "Save Category",
+    "deleteCategory": "Delete Category"
+  },
+  "deleteCategoryScreen": {
+    "titleTemplate": "Delete {{name}}?",
+    "body": "This category has transactions associated with it. Deleting it will permanently delete all of those transactions too. This can't be undone."
   },
   "form": {
-    "newTitle": "New transaction",
-    "editTitle": "Edit transaction",
+    "addExpense": "Add Expense",
+    "addIncome": "Add Income",
+    "editTransaction": "Edit Transaction",
     "amount": "Amount",
     "category": "Category",
     "date": "Date",
@@ -42,7 +76,9 @@
     "missingAmount": "Enter an amount greater than zero.",
     "missingCategory": "Pick a category.",
     "deleteConfirmTitle": "Delete this transaction?",
-    "deleteConfirmMessage": "This cannot be undone."
+    "deleteConfirmMessage": "This cannot be undone.",
+    "saveExpense": "Save Expense",
+    "saveIncome": "Save Income"
   },
   "settings": {
     "title": "Settings",
@@ -79,14 +115,33 @@
     "refund": "Refund",
     "otherIncome": "Other Income"
   },
+  "categoriesScreen": {
+    "title": "Categories",
+    "addCategory": "Add category",
+    "editCategory": "Edit category",
+    "deleteCategory": "Delete category",
+    "expenseTab": "Expense",
+    "incomeTab": "Income",
+    "totalSuffix": "total",
+    "analysisKicker": "Analysis",
+    "analysisExpense": "{{name}} is your largest category at {{pct}}% of spend. {{smallName}} is the smallest at {{smallPct}}%.",
+    "analysisExpenseSingle": "{{name}} is your only category with spend this month, at {{pct}}%.",
+    "analysisIncome": "{{name}} is your largest income source at {{pct}}% of income. {{smallName}} is the smallest at {{smallPct}}%.",
+    "analysisIncomeSingle": "{{name}} is your only income source this month, at {{pct}}%.",
+    "noActivity": "No categories with activity this month."
+  },
   "accounts": {
     "cash": "Cash"
   },
-  "stats": {
-    "title": "Stats",
-    "expenseVsIncome": "Expense vs income",
-    "netThisMonth": "Net",
-    "sixMonthTrend": "6-month trend",
+  "trends": {
+    "title": "Trends",
+    "subtitle": "Last 6 months",
+    "insightKicker": "Insight",
+    "insightUp": "Spending is up {{amount}} ({{pct}}%) vs {{month}}.",
+    "insightDown": "Spending is down {{amount}} ({{pct}}%) vs {{month}}.",
+    "insightFlat": "Spending is flat vs {{month}}.",
+    "insightNew": "You spent {{amount}} this month, with no spending in {{month}}.",
+    "categoryShift": "Category Shift vs Last Month",
     "noActivity": "No transactions recorded this month."
   },
   "migration": {

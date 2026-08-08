@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 import { useTheme } from '@/hooks/use-theme';
-import { fontSize, radius, spacing } from '@/theme';
+import { accentRamp, fontSize, radius, spacing } from '@/theme';
 
 type TextFieldProps = TextInputProps & {
   label: string;
@@ -26,7 +26,7 @@ export function TextField({ label, error, style, ...inputProps }: TextFieldProps
           styles.input,
           {
             backgroundColor: theme.surface,
-            borderColor: error ? theme.expense : theme.border,
+            borderColor: error ? accentRamp[700] : theme.divider,
             color: theme.text,
           },
           style,
@@ -34,7 +34,7 @@ export function TextField({ label, error, style, ...inputProps }: TextFieldProps
         {...inputProps}
       />
       {error ? (
-        <Text style={[styles.error, { color: theme.expense }]}>{error}</Text>
+        <Text style={[styles.error, { color: accentRamp[700] }]}>{error}</Text>
       ) : null}
     </View>
   );
@@ -42,22 +42,20 @@ export function TextField({ label, error, style, ...inputProps }: TextFieldProps
 
 const styles = StyleSheet.create({
   container: {
-    gap: spacing.xs,
+    gap: 5,
   },
   error: {
     fontSize: fontSize.caption,
   },
   input: {
     borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    fontSize: fontSize.subtitle,
-    minHeight: 50,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    fontSize: fontSize.body,
+    minHeight: 44,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   label: {
-    fontSize: fontSize.caption,
-    fontWeight: '600',
-    textTransform: 'uppercase',
+    fontSize: 12,
   },
 });
