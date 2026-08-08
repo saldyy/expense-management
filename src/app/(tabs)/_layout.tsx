@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Home, PieChart, Settings, TrendingUp, Wallet } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/hooks/use-theme';
 import { spacing } from '@/theme';
@@ -8,6 +9,7 @@ import { spacing } from '@/theme';
 export default function TabsLayout() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -19,7 +21,8 @@ export default function TabsLayout() {
           backgroundColor: theme.background,
           borderTopColor: theme.divider,
           borderTopWidth: 2,
-          paddingBottom: spacing.sm,
+          height: 56 + spacing.sm + insets.bottom,
+          paddingBottom: spacing.sm + insets.bottom,
           paddingTop: spacing.sm,
         },
       }}
