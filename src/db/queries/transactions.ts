@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, isNull, lte, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, isNull, lte, sql } from 'drizzle-orm';
 
 import { db } from '../client';
 import {
@@ -55,6 +55,23 @@ export function listTransactionsQuery(filter: TransactionFilter) {
 export type TransactionListItem = Awaited<
   ReturnType<typeof listTransactionsQuery>
 >[number];
+
+/** Every non-deleted transaction, oldest first — the full-history CSV export. */
+export function exportableTransactionsQuery() {
+  return db
+    .select({
+      amountMinor: transactions.amountMinor,
+      type: transactions.type,
+      occurredAt: transactions.occurredAt,
+      note: transactions.note,
+      categoryName: categories.name,
+      categoryIsDefault: categories.isDefault,
+    })
+    .from(transactions)
+    .innerJoin(categories, eq(categories.id, transactions.categoryId))
+    .where(isNull(transactions.deletedAt))
+    .orderBy(asc(transactions.occurredAt));
+}
 
 export function transactionByIdQuery(id: string) {
   return db
