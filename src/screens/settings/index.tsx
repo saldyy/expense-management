@@ -4,6 +4,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CurrencyPicker } from './components/currency-picker';
 import { EraseDataButton } from './components/erase-data-button';
+import { ExportCsvButton } from './components/export-csv-button';
+import { ImportCsvButton } from './components/import-csv-button';
 import { LocalePicker } from './components/locale-picker';
 import { ThemePicker } from './components/theme-picker';
 import { Divider } from '@/components/divider';
@@ -47,6 +49,8 @@ export function Settings() {
           <Text style={[styles.notice, { color: theme.textMuted }]}>
             {t('settings.offlineNotice')}
           </Text>
+          <ExportCsvButton />
+          <ImportCsvButton />
           <EraseDataButton />
         </Section>
       </ScrollView>
