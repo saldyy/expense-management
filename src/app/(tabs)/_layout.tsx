@@ -3,6 +3,7 @@ import { Home, PieChart, Settings, TrendingUp, Wallet } from 'lucide-react-nativ
 import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@/hooks/use-theme';
+import { spacing } from '@/theme';
 
 export default function TabsLayout() {
   const theme = useTheme();
@@ -18,6 +19,8 @@ export default function TabsLayout() {
           backgroundColor: theme.background,
           borderTopColor: theme.divider,
           borderTopWidth: 2,
+          paddingBottom: spacing.sm,
+          paddingTop: spacing.sm,
         },
       }}
     >
