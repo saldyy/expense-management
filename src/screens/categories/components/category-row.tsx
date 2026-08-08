@@ -98,10 +98,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   pct: {
+    flexShrink: 0,
     fontFamily: fontFamily.heading,
     fontSize: fontSize.h5,
     textAlign: 'right',
-    width: 44,
+    width: 54,
   },
   swatch: {
     borderRadius: radius.sm - 3,
