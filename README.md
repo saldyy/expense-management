@@ -1,4 +1,4 @@
-# Expense Management
+# ClearSpend
 
 An offline-first expense tracker built with Expo SDK 57. Everything lives on the
 device — there is no account, no server, and no sync. SQLite is the source of
