@@ -12,6 +12,7 @@ import {
   type ParsedImportRow,
 } from '@/db/csv';
 import { useCategoryName } from '@/hooks/use-category-name';
+import { useFilterStore } from '@/stores/use-filter-store';
 import { useCurrency, useHasSeenCsvImportInstructions } from '@/stores/use-settings-store';
 
 export function ImportCsvButton() {
@@ -82,10 +83,15 @@ export function ImportCsvButton() {
     setImporting(true);
     try {
       await insertParsedTransactions(rows);
+      const latestOccurredAt = Math.max(...rows.map((row) => row.occurredAt));
+      useFilterStore.getState().setMonthCursor(latestOccurredAt);
+
       const message =
         t('settings.importCsvSuccessMessage', { count: rows.length }) +
         (skippedCount > 0 ? t('settings.importCsvSkippedSuffix', { count: skippedCount }) : '');
-      Alert.alert(t('settings.importCsvSuccessTitle'), message);
+      Alert.alert(t('settings.importCsvSuccessTitle'), message, [
+        { text: t('common.done'), onPress: () => router.push('/transactions') },
+      ]);
     } catch (error) {
       console.error('Failed to import CSV', error);
       Alert.alert(

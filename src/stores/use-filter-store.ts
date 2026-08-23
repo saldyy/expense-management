@@ -10,6 +10,7 @@ type FilterState = {
   goToPreviousMonth: () => void;
   goToNextMonth: () => void;
   goToCurrentMonth: () => void;
+  setMonthCursor: (dateMs: number) => void;
   setCategoryId: (categoryId: string | null) => void;
   setAccountId: (accountId: string | null) => void;
 };
@@ -34,6 +35,8 @@ export const useFilterStore = create<FilterState>()((set, get) => ({
     set({ monthCursor: startOfMonthMs(addMonths(new Date(get().monthCursor), 1)) }),
 
   goToCurrentMonth: () => set({ monthCursor: startOfMonthMs(new Date()) }),
+
+  setMonthCursor: (dateMs) => set({ monthCursor: startOfMonthMs(new Date(dateMs)) }),
 
   setCategoryId: (categoryId) => set({ categoryId }),
 
