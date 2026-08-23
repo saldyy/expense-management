@@ -11,15 +11,20 @@ import { TransactionRow } from './components/transaction-row';
 import { EmptyState } from '@/components/empty-state';
 import { IconButton } from '@/components/icon-button';
 import { ScreenContainer } from '@/components/screen-container';
+import { Tag } from '@/components/tag';
+import { listAccountsQuery } from '@/db/queries/accounts';
+import { listCategoriesQuery } from '@/db/queries/categories';
 import {
   listTransactionsQuery,
   softDeleteTransaction,
   type TransactionListItem,
 } from '@/db/queries/transactions';
+import { useCategoryName } from '@/hooks/use-category-name';
 import { useTheme } from '@/hooks/use-theme';
 import { useFilterStore } from '@/stores/use-filter-store';
+import { useLocale } from '@/stores/use-settings-store';
 import { fontFamily, fontSize, spacing } from '@/theme';
-import { dayKey, monthRange } from '@/utils/date';
+import { dayKey, formatMonthTitle, monthRange } from '@/utils/date';
 
 type DaySection = {
   title: string;
@@ -47,6 +52,8 @@ export function Transactions() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
+  const locale = useLocale();
+  const categoryName = useCategoryName();
 
   // No on-screen month switcher here (matches the mockup) — `monthCursor` is
   // shared Zustand state driven from Home, so this list stays live either way.
@@ -62,6 +69,20 @@ export function Transactions() {
   const { data } = useLiveQuery(listTransactionsQuery(filter), [filter]);
   const sections = useMemo(() => groupByDay(data), [data]);
 
+  const { data: categories } = useLiveQuery(listCategoriesQuery(), []);
+  const { data: accounts } = useLiveQuery(listAccountsQuery(), []);
+  const selectedCategory = categoryId
+    ? categories.find((category) => category.id === categoryId)
+    : undefined;
+  const selectedAccount = accountId
+    ? accounts.find((account) => account.id === accountId)
+    : undefined;
+
+  const activeFilterCount = useMemo(() => {
+    const isNonCurrentMonth = monthCursor !== monthRange(new Date()).start;
+    return (isNonCurrentMonth ? 1 : 0) + (categoryId ? 1 : 0) + (accountId ? 1 : 0);
+  }, [accountId, categoryId, monthCursor]);
+
   return (
     <ScreenContainer edges={{ top: true }}>
       <View style={styles.header}>
@@ -75,11 +96,20 @@ export function Transactions() {
             onPress={() => {}}
           />
           <IconButton
+            badge={activeFilterCount}
             icon={SlidersVertical}
             label={t('transactions.filter')}
             onPress={() => router.push('/transaction/filter')}
           />
         </View>
+      </View>
+
+      <View style={styles.filterChips}>
+        <Tag label={formatMonthTitle(new Date(monthCursor), locale)} variant="accent" />
+        {selectedCategory ? (
+          <Tag label={categoryName(selectedCategory.name, selectedCategory.isDefault)} />
+        ) : null}
+        {selectedAccount ? <Tag label={selectedAccount.name} /> : null}
       </View>
 
       <SectionList
@@ -115,6 +145,12 @@ export function Transactions() {
 const styles = StyleSheet.create({
   content: {
     paddingBottom: 96,
+  },
+  filterChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    paddingBottom: spacing.sm,
   },
   header: {
     alignItems: 'center',

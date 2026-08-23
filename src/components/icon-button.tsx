@@ -1,8 +1,8 @@
 import type { LucideIcon } from 'lucide-react-native';
-import { Pressable, StyleSheet, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
 import { useTheme } from '@/hooks/use-theme';
-import { accentRamp, radius } from '@/theme';
+import { accentRamp, fontSize, radius } from '@/theme';
 
 type IconButtonProps = {
   icon: LucideIcon;
@@ -13,6 +13,8 @@ type IconButtonProps = {
   size?: number;
   color?: string;
   style?: ViewStyle;
+  /** Small count badge on the top-right corner. Omitted (or 0) renders nothing. */
+  badge?: number;
 };
 
 export function IconButton({
@@ -23,6 +25,7 @@ export function IconButton({
   size = 36,
   color,
   style,
+  badge,
 }: IconButtonProps) {
   const theme = useTheme();
   const iconColor = color ?? (variant === 'ghost' ? theme.accent : theme.text);
@@ -51,14 +54,41 @@ export function IconButton({
       ]}
     >
       <Icon color={iconColor} size={iconSize} strokeWidth={2} />
+      {badge ? (
+        <View
+          style={[
+            styles.badge,
+            { backgroundColor: theme.accent, borderColor: theme.background },
+          ]}
+        >
+          <Text style={[styles.badgeLabel, { color: theme.background }]}>{badge}</Text>
+        </View>
+      ) : null}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
+  badge: {
+    alignItems: 'center',
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+    justifyContent: 'center',
+    minWidth: 16,
+    paddingHorizontal: 3,
+    position: 'absolute',
+    right: -4,
+    top: -4,
+  },
+  badgeLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    lineHeight: fontSize.caption,
+  },
   button: {
     alignItems: 'center',
     borderRadius: radius.md,
     justifyContent: 'center',
+    position: 'relative',
   },
 });
