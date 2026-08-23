@@ -2,7 +2,8 @@ import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
+import { Alert, Linking, Platform } from 'react-native';
+import ReactNativeBlobUtil from 'react-native-blob-util';
 
 import { Button } from '@/components/button';
 import { buildTransactionsCsv } from '@/db/csv';
@@ -25,7 +26,14 @@ export function ExportCsvButton() {
         return;
       }
 
-      const file = new File(Paths.cache, `expense-export-${Date.now()}.csv`);
+      const fileName = `expense-export-${Date.now()}.csv`;
+
+      if (Platform.OS === 'android') {
+        await saveToAndroidDownloads(csv, fileName);
+        return;
+      }
+
+      const file = new File(Paths.cache, fileName);
       file.create({ overwrite: true });
       file.write(csv);
 
@@ -45,6 +53,33 @@ export function ExportCsvButton() {
       );
     } finally {
       setExporting(false);
+    }
+  }
+
+  /**
+   * Writes straight into the public Downloads folder via MediaStore — no folder
+   * picker. Android blocks granting SAF access to the Download directory itself
+   * ("To protect your privacy, choose another folder"), so this bypasses SAF
+   * entirely: write to the app's own cache, then hand that off to MediaStore.
+   * The saved file is then opened directly from Downloads (via its content URI)
+   * so the user lands on it immediately instead of just seeing a confirmation.
+   */
+  async function saveToAndroidDownloads(csv: string, fileName: string) {
+    const cacheFile = new File(Paths.cache, fileName);
+    cacheFile.create({ overwrite: true });
+    cacheFile.write(csv);
+
+    const contentUri = await ReactNativeBlobUtil.MediaCollection.copyToMediaStore(
+      { name: fileName, parentFolder: '', mimeType: 'text/csv' },
+      'Download',
+      cacheFile.uri
+    );
+
+    try {
+      await Linking.openURL(contentUri);
+    } catch {
+      // No app can open a CSV directly — fall back to a plain confirmation.
+      Alert.alert(t('settings.exportCsvSavedTitle'), t('settings.exportCsvSavedMessage'));
     }
   }
 

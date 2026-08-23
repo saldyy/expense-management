@@ -9,7 +9,7 @@ import { createId } from '@/utils/id';
 import { formatMinorForInput, parseAmountToMinor } from '@/utils/money';
 import { parseCsv, toCsvRow } from '@/utils/csv';
 
-const CSV_HEADER = ['Date', 'Type', 'Category', 'Amount', 'Currency', 'Note'];
+const CSV_HEADER = ['Date', 'Type', 'Category', 'Amount', 'Note'];
 const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
 const INSERT_CHUNK_SIZE = 100;
 const AUTO_CATEGORY_ICON = '💸';
@@ -29,7 +29,6 @@ export async function buildTransactionsCsv(
       row.type,
       resolveCategoryName(row.categoryName, row.categoryIsDefault),
       formatMinorForInput(row.amountMinor, currency),
-      currency,
       row.note ?? '',
     ])
   );
@@ -74,9 +73,9 @@ export async function parseTransactionsCsv(
 
   for (let i = 0; i < dataRows.length; i++) {
     const rowNumber = i + 2; // +1 for 0-index, +1 for the header row.
-    const [dateStr, typeStr, categoryStr, amountStr, currencyStr, noteStr] = dataRows[i];
+    const [dateStr, typeStr, categoryStr, amountStr, noteStr] = dataRows[i];
 
-    if (dataRows[i].length < 6) {
+    if (dataRows[i].length < 5) {
       skipped.push({ row: rowNumber, reason: 'Wrong number of columns' });
       continue;
     }
@@ -105,13 +104,6 @@ export async function parseTransactionsCsv(
       continue;
     }
 
-    if (currencyStr.trim().toLowerCase() !== currency.toLowerCase()) {
-      skipped.push({
-        row: rowNumber,
-        reason: `Currency mismatch (expected ${currency}, got ${currencyStr})`,
-      });
-      continue;
-    }
     const amountMinor = parseAmountToMinor(normalizedAmount, currency);
 
     const categoryDisplay = categoryStr.trim();

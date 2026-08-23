@@ -11,10 +11,12 @@ type SettingsState = {
   locale: LocaleCode;
   currency: CurrencyCode;
   themeMode: ThemeMode;
+  hasSeenCsvImportInstructions: boolean;
   hydrated: boolean;
   setLocale: (locale: LocaleCode) => void;
   setCurrency: (currency: CurrencyCode) => void;
   setThemeMode: (mode: ThemeMode) => void;
+  setHasSeenCsvImportInstructions: (seen: boolean) => void;
 };
 
 /**
@@ -27,6 +29,7 @@ export const useSettingsStore = create<SettingsState>()(
       locale: DEFAULT_LOCALE,
       currency: DEFAULT_CURRENCY,
       themeMode: 'system',
+      hasSeenCsvImportInstructions: false,
       hydrated: false,
 
       setLocale: (locale) => {
@@ -37,14 +40,17 @@ export const useSettingsStore = create<SettingsState>()(
       setCurrency: (currency) => set({ currency }),
 
       setThemeMode: (themeMode) => set({ themeMode }),
+
+      setHasSeenCsvImportInstructions: (seen) => set({ hasSeenCsvImportInstructions: seen }),
     }),
     {
       name: 'settings',
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: ({ locale, currency, themeMode }) => ({
+      partialize: ({ locale, currency, themeMode, hasSeenCsvImportInstructions }) => ({
         locale,
         currency,
         themeMode,
+        hasSeenCsvImportInstructions,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
@@ -62,3 +68,5 @@ export const useCurrency = () => useSettingsStore((state) => state.currency);
 export const useThemeMode = () => useSettingsStore((state) => state.themeMode);
 export const useSettingsHydrated = () =>
   useSettingsStore((state) => state.hydrated);
+export const useHasSeenCsvImportInstructions = () =>
+  useSettingsStore((state) => state.hasSeenCsvImportInstructions);

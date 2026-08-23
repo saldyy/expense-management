@@ -7,6 +7,7 @@ import { EraseDataButton } from './components/erase-data-button';
 import { ExportCsvButton } from './components/export-csv-button';
 import { ImportCsvButton } from './components/import-csv-button';
 import { LocalePicker } from './components/locale-picker';
+import { SupportLink } from './components/support-link';
 import { ThemePicker } from './components/theme-picker';
 import { Divider } from '@/components/divider';
 import { ScreenContainer } from '@/components/screen-container';
@@ -26,6 +27,8 @@ export function Settings() {
         <Text style={[styles.heading, { color: theme.text }]}>
           {t('settings.title')}
         </Text>
+
+        <SupportLink />
 
         <Section title={t('settings.appearance')}>
           <ThemePicker />

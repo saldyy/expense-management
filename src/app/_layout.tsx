@@ -79,6 +79,10 @@ export default function RootLayout() {
               name="category/[id]/delete"
               options={{ presentation: 'transparentModal', animation: 'fade' }}
             />
+            <Stack.Screen
+              name="settings/import-csv-help"
+              options={{ presentation: 'transparentModal', animation: 'fade' }}
+            />
           </Stack>
         )}
       </SafeAreaProvider>

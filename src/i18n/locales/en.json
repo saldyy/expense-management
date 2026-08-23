@@ -96,6 +96,8 @@
     "exportCsvEmptyTitle": "Nothing to export",
     "exportCsvEmptyMessage": "You don't have any transactions yet.",
     "exportCsvFailedTitle": "Couldn't export data",
+    "exportCsvSavedTitle": "Export complete",
+    "exportCsvSavedMessage": "The CSV file has been saved.",
     "importCsv": "Import from CSV",
     "importCsvConfirmTitle": "Import {{count}} transactions?",
     "importCsvConfirmMessage": "Adds {{count}} transactions to your existing data. Categories not already in the app are created automatically. Importing the same file twice will duplicate transactions.",
@@ -112,7 +114,19 @@
     "eraseConfirmTitle": "Erase all data?",
     "eraseConfirmMessage": "This permanently deletes every transaction, category, and account on this device. This cannot be undone.",
     "eraseConfirmAction": "Erase",
-    "eraseFailedTitle": "Couldn't erase data"
+    "eraseFailedTitle": "Couldn't erase data",
+    "supportMessage": "Love using ClearSpend? Support our development with a small donation to keep the app ad-free and growing!"
+  },
+  "importCsvHelpScreen": {
+    "title": "Before you import",
+    "intro": "Your CSV needs a header row with these exact columns, in this order:",
+    "columns": "Date, Type, Category, Amount, Note",
+    "dateFormat": "Date must be in YYYY-MM-DD format (e.g. 2026-08-23).",
+    "typeFormat": "Type must be either \"expense\" or \"income\".",
+    "amountCurrencyNote": "Amount is read using your current app currency ({{currency}}) — no Currency column needed.",
+    "categoryFormat": "Categories that don't exist yet are created automatically.",
+    "tip": "Tip: export your existing data first to see the exact format expected.",
+    "action": "Got it"
   },
   "categories": {
     "food": "Food & Dining",

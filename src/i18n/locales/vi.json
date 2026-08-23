@@ -96,6 +96,8 @@
     "exportCsvEmptyTitle": "Không có gì để xuất",
     "exportCsvEmptyMessage": "Bạn chưa có giao dịch nào.",
     "exportCsvFailedTitle": "Không thể xuất dữ liệu",
+    "exportCsvSavedTitle": "Xuất hoàn tất",
+    "exportCsvSavedMessage": "File CSV đã được lưu.",
     "importCsv": "Nhập từ CSV",
     "importCsvConfirmTitle": "Nhập {{count}} giao dịch?",
     "importCsvConfirmMessage": "Thao tác này sẽ thêm {{count}} giao dịch vào dữ liệu hiện có. Các danh mục chưa có trong ứng dụng sẽ được tự động tạo. Nhập cùng một file hai lần sẽ tạo giao dịch trùng lặp.",
@@ -112,7 +114,19 @@
     "eraseConfirmTitle": "Xoá toàn bộ dữ liệu?",
     "eraseConfirmMessage": "Thao tác này sẽ xoá vĩnh viễn mọi giao dịch, danh mục và tài khoản trên máy. Không thể hoàn tác.",
     "eraseConfirmAction": "Xoá",
-    "eraseFailedTitle": "Không thể xoá dữ liệu"
+    "eraseFailedTitle": "Không thể xoá dữ liệu",
+    "supportMessage": "Bạn yêu thích ClearSpend? Cùng ủng hộ để giúp ứng dụng tiếp tục phát triển và luôn miễn phí quảng cáo nhé!"
+  },
+  "importCsvHelpScreen": {
+    "title": "Trước khi nhập",
+    "intro": "File CSV cần có dòng tiêu đề với đúng các cột sau, theo đúng thứ tự:",
+    "columns": "Date, Type, Category, Amount, Note",
+    "dateFormat": "Date phải theo định dạng YYYY-MM-DD (VD: 2026-08-23).",
+    "typeFormat": "Type chỉ có thể là \"expense\" hoặc \"income\".",
+    "amountCurrencyNote": "Amount được đọc theo tiền tệ hiện tại của ứng dụng ({{currency}}) — không cần cột Currency.",
+    "categoryFormat": "Các danh mục chưa tồn tại sẽ được tự động tạo.",
+    "tip": "Mẹo: hãy xuất dữ liệu hiện có trước để xem đúng định dạng cần thiết.",
+    "action": "Đã hiểu"
   },
   "categories": {
     "food": "Ăn uống",

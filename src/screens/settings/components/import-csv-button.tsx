@@ -1,4 +1,5 @@
 import { File } from 'expo-file-system';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
@@ -11,15 +12,22 @@ import {
   type ParsedImportRow,
 } from '@/db/csv';
 import { useCategoryName } from '@/hooks/use-category-name';
-import { useCurrency } from '@/stores/use-settings-store';
+import { useCurrency, useHasSeenCsvImportInstructions } from '@/stores/use-settings-store';
 
 export function ImportCsvButton() {
   const { t } = useTranslation();
+  const router = useRouter();
   const currency = useCurrency();
   const categoryName = useCategoryName();
+  const hasSeenCsvImportInstructions = useHasSeenCsvImportInstructions();
   const [importing, setImporting] = useState(false);
 
   async function handleImport() {
+    if (!hasSeenCsvImportInstructions) {
+      router.push('/settings/import-csv-help');
+      return;
+    }
+
     setImporting(true);
     try {
       const pick = await File.pickFileAsync({
