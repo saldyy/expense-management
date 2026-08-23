@@ -1,5 +1,5 @@
 {
-  "name": "expense-management",
+  "name": "ClearSpend",
   "slug": "expense-management",
   "scheme": "expense",
   "icon": "./assets/icon.png",
@@ -16,12 +16,13 @@
     "typedRoutes": true
   },
   "android": {
-    "package": "com.sald12.expensemanagement"
+    "package": "com.sald12.clearspend"
   },
   "extra": {
     "router": {},
     "eas": {
       "projectId": "0fdb578b-57ec-4db2-b74a-41f2b314e42f"
     }
-  }
+  },
+  "owner": "sald12"
 }
