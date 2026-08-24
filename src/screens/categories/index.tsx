@@ -24,11 +24,20 @@ import { fontFamily, fontSize, spacing } from '@/theme';
 import { buildDonutArcs } from '@/utils/chart-geometry';
 import { formatMonthTitle, monthRange } from '@/utils/date';
 
-const DONUT_SIZE = 176;
-const DONUT_CENTER = DONUT_SIZE / 2;
-const DONUT_OUTER_RADIUS = 72;
+const DONUT_MIN_SIZE = 176;
+const DONUT_MAX_SIZE = 240;
 const DONUT_STROKE = 24;
-const DONUT_INNER_RADIUS = DONUT_OUTER_RADIUS - DONUT_STROKE;
+/** Keeps the ring's thickness-to-diameter proportion constant as the chart grows. */
+const DONUT_OUTER_RADIUS_RATIO = 72 / DONUT_MIN_SIZE;
+/** Roughly how many characters of the centered total fit at the min size, e.g. "$1,234.56". */
+const DONUT_BASELINE_CHARS = 9;
+const DONUT_GROWTH_PER_CHAR = 8;
+
+/** Grows the donut so a long formatted total still fits inside the ring instead of overflowing it. */
+function donutSizeForLabel(label: string): number {
+  const extraChars = Math.max(0, label.length - DONUT_BASELINE_CHARS);
+  return Math.min(DONUT_MIN_SIZE + extraChars * DONUT_GROWTH_PER_CHAR, DONUT_MAX_SIZE);
+}
 
 export function Categories() {
   const { t } = useTranslation();
@@ -51,6 +60,12 @@ export function Categories() {
 
   const displayTotal =
     totals.find((total) => total.type === tab)?.totalMinor ?? 0;
+  const formattedTotal = format(displayTotal);
+
+  const donutSize = useMemo(() => donutSizeForLabel(formattedTotal), [formattedTotal]);
+  const donutCenterPx = donutSize / 2;
+  const donutOuterRadius = donutSize * DONUT_OUTER_RADIUS_RATIO;
+  const donutInnerRadius = donutOuterRadius - DONUT_STROKE;
 
   const arcs = useMemo(
     () =>
@@ -61,13 +76,13 @@ export function Categories() {
           color: row.categoryColor,
         })),
         {
-          cx: DONUT_CENTER,
-          cy: DONUT_CENTER,
-          outerRadius: DONUT_OUTER_RADIUS,
-          innerRadius: DONUT_INNER_RADIUS,
+          cx: donutCenterPx,
+          cy: donutCenterPx,
+          outerRadius: donutOuterRadius,
+          innerRadius: donutInnerRadius,
         }
       ),
-    [rows]
+    [rows, donutCenterPx, donutOuterRadius, donutInnerRadius]
   );
 
   const analysisText = useMemo(() => {
@@ -136,21 +151,30 @@ export function Categories() {
         ) : (
           <>
             <Animated.View entering={FadeIn.duration(220)} style={styles.donutWrap}>
-              <Svg height={DONUT_SIZE} width={DONUT_SIZE}>
+              <Svg height={donutSize} width={donutSize}>
                 {arcs.map((arc) => (
                   <Path d={arc.path} fill={arc.color} fillRule="evenodd" key={arc.key} />
                 ))}
               </Svg>
-              <View style={styles.donutCenter} pointerEvents="none">
+              <View
+                pointerEvents="none"
+                style={[
+                  styles.donutCenter,
+                  {
+                    left: (donutSize - donutInnerRadius * 2) / 2,
+                    right: (donutSize - donutInnerRadius * 2) / 2,
+                  },
+                ]}
+              >
                 <Text style={[styles.donutLabel, { color: theme.textMuted }]}>
-                  {t('overview.spentThisMonth')}
+                  {t(tab === 'income' ? 'overview.earnedThisMonth' : 'overview.spentThisMonth')}
                 </Text>
                 <Text
                   adjustsFontSizeToFit
                   numberOfLines={1}
                   style={[styles.donutValue, { color: theme.text }]}
                 >
-                  {format(displayTotal)}
+                  {formattedTotal}
                 </Text>
               </View>
             </Animated.View>
@@ -210,9 +234,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     bottom: 0,
     justifyContent: 'center',
-    left: (DONUT_SIZE - DONUT_INNER_RADIUS * 2) / 2,
     position: 'absolute',
-    right: (DONUT_SIZE - DONUT_INNER_RADIUS * 2) / 2,
     top: 0,
   },
   donutLabel: {
