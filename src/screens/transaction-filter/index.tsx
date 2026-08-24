@@ -23,27 +23,56 @@ const MONTH_LABELS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ] as const;
 
-/**
- * Entirely inert — Reset/Apply both just close the sheet. No new filtering
- * is wired to `useFilterStore` yet; this is the visual UI for a follow-up pass.
- */
 export function TransactionFilter() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
   const categoryName = useCategoryName();
   const monthCursor = useFilterStore((state) => state.monthCursor);
+  const storedCategoryIds = useFilterStore((state) => state.categoryIds);
+  const storedType = useFilterStore((state) => state.type);
 
   const initialDate = new Date(monthCursor);
   const [year, setYear] = useState(initialDate.getFullYear());
   const [monthIndex, setMonthIndex] = useState(initialDate.getMonth());
-  const [type, setType] = useState<TransactionType | 'all'>('all');
-  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [type, setType] = useState<TransactionType>(storedType);
+  const [categoryIds, setCategoryIds] = useState<string[]>(storedCategoryIds);
 
-  const { data: categories } = useLiveQuery(listCategoriesQuery(), []);
+  const { data: categories } = useLiveQuery(listCategoriesQuery(type), [type]);
+
+  function selectType(nextType: TransactionType) {
+    setType(nextType);
+    // The category list is scoped to the selected type, so categories picked
+    // under a different type would silently disappear from the list.
+    setCategoryIds([]);
+  }
+
+  function toggleCategory(categoryId: string) {
+    setCategoryIds((current) =>
+      current.includes(categoryId)
+        ? current.filter((id) => id !== categoryId)
+        : [...current, categoryId]
+    );
+  }
 
   function close() {
     router.back();
+  }
+
+  function reset() {
+    const store = useFilterStore.getState();
+    store.goToCurrentMonth();
+    store.setCategoryIds([]);
+    store.setType('expense');
+    close();
+  }
+
+  function apply() {
+    const store = useFilterStore.getState();
+    store.setMonthCursor(new Date(year, monthIndex, 1).getTime());
+    store.setCategoryIds(categoryIds);
+    store.setType(type);
+    close();
   }
 
   return (
@@ -112,13 +141,10 @@ export function TransactionFilter() {
               {t('transactionFilter.type')}
             </Text>
             <View style={styles.tagRow}>
-              <Pressable onPress={() => setType('all')}>
-                <Tag label={t('transactionFilter.all')} selected={type === 'all'} />
-              </Pressable>
-              <Pressable onPress={() => setType('expense')}>
+              <Pressable onPress={() => selectType('expense')}>
                 <Tag label={t('common.expense')} selected={type === 'expense'} />
               </Pressable>
-              <Pressable onPress={() => setType('income')}>
+              <Pressable onPress={() => selectType('income')}>
                 <Tag label={t('common.income')} selected={type === 'income'} />
               </Pressable>
             </View>
@@ -129,14 +155,14 @@ export function TransactionFilter() {
               {t('transactionFilter.category')}
             </Text>
             <View style={styles.tagRow}>
-              <Pressable onPress={() => setCategoryId(null)}>
-                <Tag label={t('transactionFilter.all')} selected={categoryId === null} />
+              <Pressable onPress={() => setCategoryIds([])}>
+                <Tag label={t('transactionFilter.all')} selected={categoryIds.length === 0} />
               </Pressable>
               {categories.map((category) => (
-                <Pressable key={category.id} onPress={() => setCategoryId(category.id)}>
+                <Pressable key={category.id} onPress={() => toggleCategory(category.id)}>
                   <Tag
                     label={categoryName(category.name, category.isDefault)}
-                    selected={categoryId === category.id}
+                    selected={categoryIds.includes(category.id)}
                   />
                 </Pressable>
               ))}
@@ -147,13 +173,13 @@ export function TransactionFilter() {
         <View style={styles.actions}>
           <Button
             label={t('transactionFilter.reset')}
-            onPress={close}
+            onPress={reset}
             style={styles.reset}
             variant="ghost"
           />
           <Button
             label={t('transactionFilter.apply')}
-            onPress={close}
+            onPress={apply}
             style={styles.apply}
           />
         </View>

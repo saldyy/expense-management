@@ -11,6 +11,7 @@ import { TransactionRow } from './components/transaction-row';
 import { EmptyState } from '@/components/empty-state';
 import { IconButton } from '@/components/icon-button';
 import { ScreenContainer } from '@/components/screen-container';
+import { SegmentedControl } from '@/components/segmented-control';
 import { Tag } from '@/components/tag';
 import { listAccountsQuery } from '@/db/queries/accounts';
 import { listCategoriesQuery } from '@/db/queries/categories';
@@ -58,30 +59,37 @@ export function Transactions() {
   // No on-screen month switcher here (matches the mockup) — `monthCursor` is
   // shared Zustand state driven from Home, so this list stays live either way.
   const monthCursor = useFilterStore((state) => state.monthCursor);
-  const categoryId = useFilterStore((state) => state.categoryId);
+  const categoryIds = useFilterStore((state) => state.categoryIds);
   const accountId = useFilterStore((state) => state.accountId);
+  const type = useFilterStore((state) => state.type);
+  const setType = useFilterStore((state) => state.setType);
 
   const filter = useMemo(() => {
     const range = monthRange(new Date(monthCursor));
-    return { ...range, categoryId, accountId };
-  }, [accountId, categoryId, monthCursor]);
+    return { ...range, categoryIds, accountId, type };
+  }, [accountId, categoryIds, monthCursor, type]);
 
   const { data } = useLiveQuery(listTransactionsQuery(filter), [filter]);
   const sections = useMemo(() => groupByDay(data), [data]);
 
   const { data: categories } = useLiveQuery(listCategoriesQuery(), []);
   const { data: accounts } = useLiveQuery(listAccountsQuery(), []);
-  const selectedCategory = categoryId
-    ? categories.find((category) => category.id === categoryId)
-    : undefined;
+  const selectedCategories = categories.filter((category) =>
+    categoryIds.includes(category.id)
+  );
   const selectedAccount = accountId
     ? accounts.find((account) => account.id === accountId)
     : undefined;
 
   const activeFilterCount = useMemo(() => {
     const isNonCurrentMonth = monthCursor !== monthRange(new Date()).start;
-    return (isNonCurrentMonth ? 1 : 0) + (categoryId ? 1 : 0) + (accountId ? 1 : 0);
-  }, [accountId, categoryId, monthCursor]);
+    return (
+      (isNonCurrentMonth ? 1 : 0) +
+      (categoryIds.length > 0 ? 1 : 0) +
+      (accountId ? 1 : 0) +
+      (type !== 'expense' ? 1 : 0)
+    );
+  }, [accountId, categoryIds, monthCursor, type]);
 
   return (
     <ScreenContainer edges={{ top: true }}>
@@ -104,11 +112,24 @@ export function Transactions() {
         </View>
       </View>
 
+      <SegmentedControl
+        onChange={setType}
+        options={[
+          { value: 'expense', label: t('common.expense') },
+          { value: 'income', label: t('common.income') },
+        ]}
+        style={styles.segmented}
+        value={type}
+      />
+
       <View style={styles.filterChips}>
         <Tag label={formatMonthTitle(new Date(monthCursor), locale)} variant="accent" />
-        {selectedCategory ? (
-          <Tag label={categoryName(selectedCategory.name, selectedCategory.isDefault)} />
-        ) : null}
+        {selectedCategories.map((category) => (
+          <Tag
+            key={category.id}
+            label={categoryName(category.name, category.isDefault)}
+          />
+        ))}
         {selectedAccount ? <Tag label={selectedAccount.name} /> : null}
       </View>
 
@@ -166,5 +187,8 @@ const styles = StyleSheet.create({
   heading: {
     fontFamily: fontFamily.heading,
     fontSize: fontSize.h4,
+  },
+  segmented: {
+    marginBottom: spacing.md,
   },
 });

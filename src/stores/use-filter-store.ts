@@ -1,18 +1,22 @@
 import { create } from 'zustand';
 
+import type { TransactionType } from '@/db/schema';
 import { addMonths, monthRange } from '@/utils/date';
 
 type FilterState = {
   /** First day of the month currently in view, as epoch ms. */
   monthCursor: number;
-  categoryId: string | null;
+  /** Empty means every category. */
+  categoryIds: string[];
   accountId: string | null;
+  type: TransactionType;
   goToPreviousMonth: () => void;
   goToNextMonth: () => void;
   goToCurrentMonth: () => void;
   setMonthCursor: (dateMs: number) => void;
-  setCategoryId: (categoryId: string | null) => void;
+  setCategoryIds: (categoryIds: string[]) => void;
   setAccountId: (accountId: string | null) => void;
+  setType: (type: TransactionType) => void;
 };
 
 function startOfMonthMs(date: Date): number {
@@ -25,8 +29,9 @@ function startOfMonthMs(date: Date): number {
  */
 export const useFilterStore = create<FilterState>()((set, get) => ({
   monthCursor: startOfMonthMs(new Date()),
-  categoryId: null,
+  categoryIds: [],
   accountId: null,
+  type: 'expense',
 
   goToPreviousMonth: () =>
     set({ monthCursor: startOfMonthMs(addMonths(new Date(get().monthCursor), -1)) }),
@@ -38,9 +43,11 @@ export const useFilterStore = create<FilterState>()((set, get) => ({
 
   setMonthCursor: (dateMs) => set({ monthCursor: startOfMonthMs(new Date(dateMs)) }),
 
-  setCategoryId: (categoryId) => set({ categoryId }),
+  setCategoryIds: (categoryIds) => set({ categoryIds }),
 
   setAccountId: (accountId) => set({ accountId }),
+
+  setType: (type) => set({ type }),
 }));
 
 export const useMonthCursor = () => useFilterStore((state) => state.monthCursor);

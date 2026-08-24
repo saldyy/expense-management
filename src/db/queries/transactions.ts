@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, isNull, lte, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, isNull, lte, sql } from 'drizzle-orm';
 
 import { db } from '../client';
 import {
@@ -14,8 +14,10 @@ export type TransactionFilter = {
   start: number;
   /** Epoch ms, inclusive. */
   end: number;
-  categoryId?: string | null;
+  /** Empty/omitted means every category. */
+  categoryIds?: string[] | null;
   accountId?: string | null;
+  type?: TransactionType | null;
 };
 
 function filterConditions(filter: TransactionFilter) {
@@ -23,8 +25,11 @@ function filterConditions(filter: TransactionFilter) {
     isNull(transactions.deletedAt),
     gte(transactions.occurredAt, filter.start),
     lte(transactions.occurredAt, filter.end),
-    filter.categoryId ? eq(transactions.categoryId, filter.categoryId) : undefined,
-    filter.accountId ? eq(transactions.accountId, filter.accountId) : undefined
+    filter.categoryIds && filter.categoryIds.length > 0
+      ? inArray(transactions.categoryId, filter.categoryIds)
+      : undefined,
+    filter.accountId ? eq(transactions.accountId, filter.accountId) : undefined,
+    filter.type ? eq(transactions.type, filter.type) : undefined
   );
 }
 
