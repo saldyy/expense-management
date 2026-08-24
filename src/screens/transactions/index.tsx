@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useRouter } from 'expo-router';
-import { Search, SlidersVertical } from 'lucide-react-native';
+import { SlidersVertical } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
@@ -98,11 +98,6 @@ export function Transactions() {
           {t('transactions.title')}
         </Text>
         <View style={styles.headerActions}>
-          <IconButton
-            icon={Search}
-            label={t('transactions.search')}
-            onPress={() => {}}
-          />
           <IconButton
             badge={activeFilterCount}
             icon={SlidersVertical}
