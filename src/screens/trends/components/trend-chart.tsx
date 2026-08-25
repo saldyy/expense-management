@@ -87,6 +87,8 @@ export function TrendChart({ points }: TrendChartProps) {
         {points.map((point) => (
           <View key={point.monthKey} style={styles.labelCell}>
             <Text
+              adjustsFontSizeToFit
+              numberOfLines={1}
               style={[
                 styles.value,
                 { color: theme.textMuted, opacity: point.isCurrent ? 1 : 0.6 },
