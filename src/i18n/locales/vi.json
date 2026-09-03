@@ -51,6 +51,10 @@
     "newCategory": "Danh Mục Mới",
     "done": "Xong"
   },
+  "selectDate": {
+    "previousMonth": "Tháng trước",
+    "nextMonth": "Tháng sau"
+  },
   "categoryForm": {
     "addTitle": "Thêm Danh Mục",
     "editTitle": "Sửa Danh Mục",

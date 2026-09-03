@@ -1,12 +1,13 @@
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useRouter } from 'expo-router';
-import { X } from 'lucide-react-native';
+import { ChevronDown, X } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -50,12 +51,13 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
 
   const type = useTransactionDraftStore((state) => state.type);
   const categoryId = useTransactionDraftStore((state) => state.categoryId);
+  const occurredAt = useTransactionDraftStore((state) => state.occurredAt);
   const setType = useTransactionDraftStore((state) => state.setType);
   const setCategoryId = useTransactionDraftStore((state) => state.setCategoryId);
+  const setOccurredAt = useTransactionDraftStore((state) => state.setOccurredAt);
 
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
-  const [occurredAt, setOccurredAt] = useState(() => Date.now());
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -73,6 +75,7 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
   useEffect(() => {
     if (!isEditing) {
       setType('expense');
+      setOccurredAt(Date.now());
     }
     // Only on mount — the draft store is the source of truth from here on.
   }, []);
@@ -89,7 +92,7 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
     setNote(row.note ?? '');
     setOccurredAt(row.occurredAt);
     setPrefilled(true);
-  }, [currency, existing, isEditing, prefilled, setCategoryId, setType]);
+  }, [currency, existing, isEditing, prefilled, setCategoryId, setOccurredAt, setType]);
 
   // Keep a valid selection when the category list changes with the type.
   useEffect(() => {
@@ -208,7 +211,8 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
             <Text style={[styles.label, { color: theme.textMuted }]}>
               {t('form.date')}
             </Text>
-            <View
+            <Pressable
+              onPress={() => router.push('/transaction/select-date')}
               style={[
                 styles.dateBox,
                 { backgroundColor: theme.surface, borderColor: theme.divider },
@@ -217,7 +221,8 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
               <Text style={[styles.dateValue, { color: theme.text }]}>
                 {formatFullDate(occurredAt, locale)}
               </Text>
-            </View>
+              <ChevronDown color={theme.textMuted} size={16} strokeWidth={2} />
+            </Pressable>
           </View>
 
           <TextField
@@ -253,8 +258,11 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
   },
   dateBox: {
+    alignItems: 'center',
     borderRadius: radius.md,
     borderWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     minHeight: 36,
     paddingHorizontal: 10,
     paddingVertical: 6,

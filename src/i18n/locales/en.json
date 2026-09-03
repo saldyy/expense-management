@@ -51,6 +51,10 @@
     "newCategory": "New Category",
     "done": "Done"
   },
+  "selectDate": {
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
+  },
   "categoryForm": {
     "addTitle": "Add Category",
     "editTitle": "Edit Category",
