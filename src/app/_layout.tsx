@@ -64,6 +64,10 @@ export default function RootLayout() {
               options={{ presentation: 'transparentModal', animation: 'fade' }}
             />
             <Stack.Screen
+              name="transaction/select-date"
+              options={{ presentation: 'transparentModal', animation: 'fade' }}
+            />
+            <Stack.Screen
               name="transaction/filter"
               options={{ presentation: 'transparentModal', animation: 'fade' }}
             />
