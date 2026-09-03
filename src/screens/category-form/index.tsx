@@ -1,9 +1,12 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useRouter } from 'expo-router';
 import { X } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import * as yup from 'yup';
 
 import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button';
@@ -28,6 +31,11 @@ type CategoryFormProps = {
   categoryId?: string;
 };
 
+type CategoryFormValues = {
+  name: string;
+  color: string;
+};
+
 /**
  * UI-only — Save/Delete both just navigate back. No `createCategory`/
  * `updateCategory`/`deleteCategory` call happens here, deliberately: category
@@ -43,18 +51,40 @@ export function CategoryForm({ categoryId }: CategoryFormProps) {
   const { data: categories } = useLiveQuery(listCategoriesQuery(), []);
   const existing = categories.find((category) => category.id === categoryId);
 
-  const [name, setName] = useState('');
-  const [color, setColor] = useState<string>(COLOR_SWATCHES[0]);
   const [prefilled, setPrefilled] = useState(false);
+
+  const categorySchema = useMemo(
+    () =>
+      yup.object({
+        name: yup.string().trim().required(t('categoryForm.missingName')),
+        color: yup.string().required(),
+      }),
+    [t]
+  );
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+  } = useForm<CategoryFormValues>({
+    resolver: yupResolver(categorySchema),
+    defaultValues: { name: '', color: COLOR_SWATCHES[0] },
+  });
+  const color = watch('color');
 
   useEffect(() => {
     if (!isEditing || prefilled || !existing) {
       return;
     }
-    setName(categoryName(existing.name, existing.isDefault));
-    setColor(existing.color);
+    setValue('name', categoryName(existing.name, existing.isDefault));
+    setValue('color', existing.color);
     setPrefilled(true);
-  }, [categoryName, existing, isEditing, prefilled]);
+  }, [categoryName, existing, isEditing, prefilled, setValue]);
+
+  const onSubmit = handleSubmit(() => {
+    router.back();
+  });
 
   return (
     <ScreenContainer edges={{ top: true, bottom: true }}>
@@ -70,11 +100,18 @@ export function CategoryForm({ categoryId }: CategoryFormProps) {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <TextField
-          label={t('categoryForm.name')}
-          onChangeText={setName}
-          placeholder={t('categoryForm.namePlaceholder')}
-          value={name}
+        <Controller
+          control={control}
+          name="name"
+          render={({ field, fieldState }) => (
+            <TextField
+              error={fieldState.error?.message}
+              label={t('categoryForm.name')}
+              onChangeText={field.onChange}
+              placeholder={t('categoryForm.namePlaceholder')}
+              value={field.value}
+            />
+          )}
         />
 
         <View style={styles.field}>
@@ -89,7 +126,7 @@ export function CategoryForm({ categoryId }: CategoryFormProps) {
                   accessibilityRole="radio"
                   accessibilityState={{ selected }}
                   key={swatch}
-                  onPress={() => setColor(swatch)}
+                  onPress={() => setValue('color', swatch)}
                   style={[
                     styles.swatch,
                     {
@@ -106,7 +143,7 @@ export function CategoryForm({ categoryId }: CategoryFormProps) {
 
       <Button
         label={t('categoryForm.saveCategory')}
-        onPress={() => router.back()}
+        onPress={onSubmit}
         style={styles.save}
       />
       {isEditing ? (

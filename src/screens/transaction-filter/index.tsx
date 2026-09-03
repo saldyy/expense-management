@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -23,6 +23,13 @@ const MONTH_LABELS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ] as const;
 
+type FilterFormValues = {
+  year: number;
+  monthIndex: number;
+  type: TransactionType;
+  categoryIds: string[];
+};
+
 export function TransactionFilter() {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -33,25 +40,37 @@ export function TransactionFilter() {
   const storedType = useFilterStore((state) => state.type);
 
   const initialDate = new Date(monthCursor);
-  const [year, setYear] = useState(initialDate.getFullYear());
-  const [monthIndex, setMonthIndex] = useState(initialDate.getMonth());
-  const [type, setType] = useState<TransactionType>(storedType);
-  const [categoryIds, setCategoryIds] = useState<string[]>(storedCategoryIds);
+
+  // Nothing in this sheet is required, so there's no yup schema/resolver —
+  // just RHF's local field state (`watch`/`setValue`) for the draft filters.
+  const { handleSubmit, watch, setValue, reset } = useForm<FilterFormValues>({
+    defaultValues: {
+      year: initialDate.getFullYear(),
+      monthIndex: initialDate.getMonth(),
+      type: storedType,
+      categoryIds: storedCategoryIds,
+    },
+  });
+  const year = watch('year');
+  const monthIndex = watch('monthIndex');
+  const type = watch('type');
+  const categoryIds = watch('categoryIds');
 
   const { data: categories } = useLiveQuery(listCategoriesQuery(type), [type]);
 
   function selectType(nextType: TransactionType) {
-    setType(nextType);
+    setValue('type', nextType);
     // The category list is scoped to the selected type, so categories picked
     // under a different type would silently disappear from the list.
-    setCategoryIds([]);
+    setValue('categoryIds', []);
   }
 
   function toggleCategory(categoryId: string) {
-    setCategoryIds((current) =>
-      current.includes(categoryId)
-        ? current.filter((id) => id !== categoryId)
-        : [...current, categoryId]
+    setValue(
+      'categoryIds',
+      categoryIds.includes(categoryId)
+        ? categoryIds.filter((id) => id !== categoryId)
+        : [...categoryIds, categoryId]
     );
   }
 
@@ -59,21 +78,27 @@ export function TransactionFilter() {
     router.back();
   }
 
-  function reset() {
+  function resetFilters() {
     const store = useFilterStore.getState();
     store.goToCurrentMonth();
     store.setCategoryIds([]);
     store.setType('expense');
+    reset({
+      year: new Date().getFullYear(),
+      monthIndex: new Date().getMonth(),
+      type: 'expense',
+      categoryIds: [],
+    });
     close();
   }
 
-  function apply() {
+  const onApply = handleSubmit((data) => {
     const store = useFilterStore.getState();
-    store.setMonthCursor(new Date(year, monthIndex, 1).getTime());
-    store.setCategoryIds(categoryIds);
-    store.setType(type);
+    store.setMonthCursor(new Date(data.year, data.monthIndex, 1).getTime());
+    store.setCategoryIds(data.categoryIds);
+    store.setType(data.type);
     close();
-  }
+  });
 
   return (
     <Sheet anchor="bottom">
@@ -96,7 +121,7 @@ export function TransactionFilter() {
                 <IconButton
                   icon={ChevronLeft}
                   label={t('transactionFilter.previousYear')}
-                  onPress={() => setYear((y) => y - 1)}
+                  onPress={() => setValue('year', year - 1)}
                   size={26}
                   variant="ghost"
                 />
@@ -104,7 +129,7 @@ export function TransactionFilter() {
                 <IconButton
                   icon={ChevronRight}
                   label={t('transactionFilter.nextYear')}
-                  onPress={() => setYear((y) => y + 1)}
+                  onPress={() => setValue('year', year + 1)}
                   size={26}
                   variant="ghost"
                 />
@@ -116,7 +141,7 @@ export function TransactionFilter() {
                 return (
                   <Pressable
                     key={label}
-                    onPress={() => setMonthIndex(index)}
+                    onPress={() => setValue('monthIndex', index)}
                     style={[
                       styles.monthCell,
                       { backgroundColor: selected ? theme.text : theme.surfaceAlt },
@@ -155,7 +180,7 @@ export function TransactionFilter() {
               {t('transactionFilter.category')}
             </Text>
             <View style={styles.tagRow}>
-              <Pressable onPress={() => setCategoryIds([])}>
+              <Pressable onPress={() => setValue('categoryIds', [])}>
                 <Tag label={t('transactionFilter.all')} selected={categoryIds.length === 0} />
               </Pressable>
               {categories.map((category) => (
@@ -173,13 +198,13 @@ export function TransactionFilter() {
         <View style={styles.actions}>
           <Button
             label={t('transactionFilter.reset')}
-            onPress={reset}
+            onPress={resetFilters}
             style={styles.reset}
             variant="ghost"
           />
           <Button
             label={t('transactionFilter.apply')}
-            onPress={apply}
+            onPress={onApply}
             style={styles.apply}
           />
         </View>

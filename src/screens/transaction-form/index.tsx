@@ -1,7 +1,9 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useRouter } from 'expo-router';
 import { ChevronDown, X } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -13,6 +15,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import * as yup from 'yup';
 
 import { AmountInput } from './components/amount-input';
 import { CategoryPicker } from './components/category-picker';
@@ -29,6 +32,7 @@ import {
   transactionByIdQuery,
   updateTransaction,
 } from '@/db/queries/transactions';
+import type { TransactionType } from '@/db/schema';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { useTheme } from '@/hooks/use-theme';
 import { useTransactionDraftStore } from '@/stores/use-transaction-draft-store';
@@ -41,6 +45,15 @@ type TransactionFormProps = {
   transactionId?: string;
 };
 
+type TransactionFormValues = {
+  type: TransactionType;
+  amount: string;
+  /** '' means "not selected yet" — matches yup's non-nullable string output, no null-juggling. */
+  categoryId: string;
+  occurredAt: number;
+  note: string;
+};
+
 export function TransactionForm({ transactionId }: TransactionFormProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -49,6 +62,11 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
 
   const isEditing = Boolean(transactionId);
 
+  // `type`/`categoryId`/`occurredAt` are bridged through this store (rather
+  // than local state) because the Select Category / Select Date sheets are
+  // separate routes — different mounted screens that can't reach this
+  // component's `control`. They stay the source of truth; RHF mirrors them
+  // via the sync effects below purely so `formState`/`handleSubmit` see them.
   const type = useTransactionDraftStore((state) => state.type);
   const categoryId = useTransactionDraftStore((state) => state.categoryId);
   const occurredAt = useTransactionDraftStore((state) => state.occurredAt);
@@ -56,9 +74,6 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
   const setCategoryId = useTransactionDraftStore((state) => state.setCategoryId);
   const setOccurredAt = useTransactionDraftStore((state) => state.setOccurredAt);
 
-  const [amount, setAmount] = useState('');
-  const [note, setNote] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [prefilled, setPrefilled] = useState(false);
@@ -69,6 +84,35 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
     transactionByIdQuery(transactionId ?? ''),
     [transactionId]
   );
+
+  const transactionSchema = useMemo(
+    () =>
+      yup.object({
+        type: yup.mixed<TransactionType>().oneOf(['expense', 'income']).required(),
+        amount: yup
+          .string()
+          .required(t('form.missingAmount'))
+          .test(
+            'positive-amount',
+            t('form.missingAmount'),
+            (value) => parseAmountToMinor(value ?? '', currency) > 0
+          ),
+        categoryId: yup.string().required(t('form.missingCategory')),
+        occurredAt: yup.number().required(),
+        note: yup.string().default(''),
+      }),
+    [currency, t]
+  );
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<TransactionFormValues>({
+    resolver: yupResolver(transactionSchema),
+    defaultValues: { type: 'expense', amount: '', categoryId: '', occurredAt: Date.now(), note: '' },
+  });
 
   // Fresh "new" form: reset the shared draft rather than inheriting whatever
   // a previous Add/Edit session left behind.
@@ -87,12 +131,12 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
       return;
     }
     setType(row.type);
-    setAmount(formatMinorForInput(row.amountMinor, currency));
     setCategoryId(row.categoryId);
-    setNote(row.note ?? '');
     setOccurredAt(row.occurredAt);
+    setValue('amount', formatMinorForInput(row.amountMinor, currency));
+    setValue('note', row.note ?? '');
     setPrefilled(true);
-  }, [currency, existing, isEditing, prefilled, setCategoryId, setOccurredAt, setType]);
+  }, [currency, existing, isEditing, prefilled, setCategoryId, setOccurredAt, setType, setValue]);
 
   // Keep a valid selection when the category list changes with the type.
   useEffect(() => {
@@ -105,18 +149,23 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
     }
   }, [categories, categoryId, setCategoryId]);
 
-  const selectedCategory = categories.find((category) => category.id === categoryId) ?? null;
+  // Mirror the cross-route draft store into RHF so `formState`/`handleSubmit`
+  // always see the current type/category/date.
+  useEffect(() => {
+    setValue('type', type);
+  }, [type, setValue]);
+  useEffect(() => {
+    setValue('categoryId', categoryId ?? '');
+  }, [categoryId, setValue]);
+  useEffect(() => {
+    setValue('occurredAt', occurredAt);
+  }, [occurredAt, setValue]);
 
-  async function handleSave() {
-    const amountMinor = parseAmountToMinor(amount, currency);
-    if (amountMinor <= 0) {
-      setError(t('form.missingAmount'));
+  const onSubmit = handleSubmit(async (data) => {
+    if (!data.categoryId) {
       return;
     }
-    if (!categoryId) {
-      setError(t('form.missingCategory'));
-      return;
-    }
+    const amountMinor = parseAmountToMinor(data.amount, currency);
     const accountId = accounts[0]?.id;
     if (!accountId) {
       return;
@@ -127,26 +176,26 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
       if (transactionId) {
         await updateTransaction(transactionId, {
           amountMinor,
-          categoryId,
-          type,
-          occurredAt,
-          note: note.trim() || null,
+          categoryId: data.categoryId,
+          type: data.type,
+          occurredAt: data.occurredAt,
+          note: data.note.trim() || null,
         });
       } else {
         await createTransaction({
           accountId,
-          categoryId,
+          categoryId: data.categoryId,
           amountMinor,
-          type,
-          occurredAt,
-          note: note.trim() || null,
+          type: data.type,
+          occurredAt: data.occurredAt,
+          note: data.note.trim() || null,
         });
       }
       router.back();
     } finally {
       setSaving(false);
     }
-  }
+  });
 
   function confirmDelete() {
     Alert.alert(t('form.deleteConfirmTitle'), t('form.deleteConfirmMessage'), [
@@ -174,6 +223,7 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
       ? t('form.addIncome')
       : t('form.addExpense');
   const saveLabel = type === 'income' ? t('form.saveIncome') : t('form.saveExpense');
+  const errorMessage = errors.amount?.message ?? errors.categoryId?.message;
 
   return (
     <ScreenContainer edges={{ top: true, bottom: true }}>
@@ -200,12 +250,22 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
             value={type}
           />
 
-          <AmountInput currency={currency} onChangeText={(next) => {
-            setAmount(next);
-            setError(null);
-          }} value={amount} />
+          <Controller
+            control={control}
+            name="amount"
+            render={({ field }) => (
+              <AmountInput currency={currency} onChangeText={field.onChange} value={field.value} />
+            )}
+          />
 
-          <CategoryPicker selected={selectedCategory} />
+          <Controller
+            control={control}
+            name="categoryId"
+            render={({ field }) => {
+              const selected = categories.find((category) => category.id === field.value) ?? null;
+              return <CategoryPicker selected={selected} />;
+            }}
+          />
 
           <View style={styles.field}>
             <Text style={[styles.label, { color: theme.textMuted }]}>
@@ -225,19 +285,25 @@ export function TransactionForm({ transactionId }: TransactionFormProps) {
             </Pressable>
           </View>
 
-          <TextField
-            label={t('form.note')}
-            onChangeText={setNote}
-            placeholder={t('form.notePlaceholder')}
-            value={note}
+          <Controller
+            control={control}
+            name="note"
+            render={({ field }) => (
+              <TextField
+                label={t('form.note')}
+                onChangeText={field.onChange}
+                placeholder={t('form.notePlaceholder')}
+                value={field.value}
+              />
+            )}
           />
 
-          {error ? (
-            <Text style={[styles.error, { color: accentRamp[700] }]}>{error}</Text>
+          {errorMessage ? (
+            <Text style={[styles.error, { color: accentRamp[700] }]}>{errorMessage}</Text>
           ) : null}
         </ScrollView>
 
-        <Button label={saveLabel} loading={saving} onPress={handleSave} style={styles.save} />
+        <Button label={saveLabel} loading={saving} onPress={onSubmit} style={styles.save} />
         {isEditing ? (
           <Button
             label={t('common.delete')}

@@ -60,6 +60,7 @@
     "editTitle": "Edit Category",
     "name": "Name",
     "namePlaceholder": "e.g. Groceries",
+    "missingName": "Enter a category name.",
     "color": "Color",
     "saveCategory": "Save Category",
     "deleteCategory": "Delete Category"
