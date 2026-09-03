@@ -60,6 +60,7 @@
     "editTitle": "Sửa Danh Mục",
     "name": "Tên",
     "namePlaceholder": "VD: Đi chợ",
+    "missingName": "Nhập tên danh mục.",
     "color": "Màu sắc",
     "saveCategory": "Lưu Danh Mục",
     "deleteCategory": "Xoá Danh Mục"
