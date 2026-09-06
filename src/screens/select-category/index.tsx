@@ -65,7 +65,7 @@ export function SelectCategory() {
           })}
 
           <Pressable
-            onPress={() => router.push('/category/new')}
+            onPress={() => router.push({ pathname: '/category/new', params: { kind: type } })}
             style={styles.newCategory}
           >
             <Plus color={theme.accent} size={16} strokeWidth={2} />

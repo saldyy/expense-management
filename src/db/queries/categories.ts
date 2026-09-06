@@ -1,7 +1,7 @@
 import { and, asc, eq, isNull } from 'drizzle-orm';
 
 import { db } from '../client';
-import { categories, type CategoryKind, type NewCategory } from '../schema';
+import { categories, transactions, type CategoryKind, type NewCategory } from '../schema';
 import { createId } from '@/utils/id';
 
 export function listCategoriesQuery(kind?: CategoryKind) {
@@ -37,4 +37,33 @@ export async function createCategory(input: {
   };
   await db.insert(categories).values(row);
   return row.id;
+}
+
+export async function updateCategory(
+  id: string,
+  input: { name: string; color: string; kind: CategoryKind }
+): Promise<void> {
+  const now = Date.now();
+  await db
+    .update(categories)
+    .set({
+      name: input.name,
+      color: input.color,
+      kind: input.kind,
+      isDefault: false,
+      updatedAt: now,
+    })
+    .where(eq(categories.id, id));
+}
+
+export async function softDeleteCategory(id: string): Promise<void> {
+  const now = Date.now();
+  await db
+    .update(transactions)
+    .set({ deletedAt: now, updatedAt: now })
+    .where(eq(transactions.categoryId, id));
+  await db
+    .update(categories)
+    .set({ deletedAt: now, updatedAt: now })
+    .where(eq(categories.id, id));
 }

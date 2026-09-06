@@ -5,7 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Sheet } from '@/components/sheet';
-import { listCategoriesQuery } from '@/db/queries/categories';
+import { listCategoriesQuery, softDeleteCategory } from '@/db/queries/categories';
 import { useCategoryName } from '@/hooks/use-category-name';
 import { useTheme } from '@/hooks/use-theme';
 import { fontFamily, fontSize, spacing } from '@/theme';
@@ -14,7 +14,6 @@ type DeleteCategoryProps = {
   categoryId: string;
 };
 
-/** UI-only — Delete just navigates back, no `deleteCategory` call. */
 export function DeleteCategory({ categoryId }: DeleteCategoryProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -42,7 +41,10 @@ export function DeleteCategory({ categoryId }: DeleteCategoryProps) {
         />
         <Button
           label={t('common.delete')}
-          onPress={() => router.back()}
+          onPress={async () => {
+            await softDeleteCategory(categoryId);
+            router.back();
+          }}
           variant="danger"
         />
       </View>
