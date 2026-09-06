@@ -71,13 +71,15 @@ export function Categories() {
 
   const rows = useMemo(
     () =>
-      allCategories.map((category) => ({
-        categoryId: category.id,
-        categoryName: category.name,
-        categoryIsDefault: category.isDefault,
-        categoryColor: category.color,
-        totalMinor: spendByCategoryId.get(category.id) ?? 0,
-      })),
+      allCategories
+        .map((category) => ({
+          categoryId: category.id,
+          categoryName: category.name,
+          categoryIsDefault: category.isDefault,
+          categoryColor: category.color,
+          totalMinor: spendByCategoryId.get(category.id) ?? 0,
+        }))
+        .sort((a, b) => b.totalMinor - a.totalMinor),
     [allCategories, spendByCategoryId]
   );
 
