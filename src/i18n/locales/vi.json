@@ -58,6 +58,9 @@
   "categoryForm": {
     "addTitle": "Thêm Danh Mục",
     "editTitle": "Sửa Danh Mục",
+    "type": "Loại",
+    "expense": "Chi tiêu",
+    "income": "Thu nhập",
     "name": "Tên",
     "namePlaceholder": "VD: Đi chợ",
     "missingName": "Nhập tên danh mục.",
@@ -163,7 +166,7 @@
     "analysisExpenseSingle": "{{name}} là danh mục duy nhất có chi tiêu trong tháng này, chiếm {{pct}}%.",
     "analysisIncome": "{{name}} là nguồn thu nhập lớn nhất của bạn, chiếm {{pct}}% thu nhập. {{smallName}} nhỏ nhất với {{smallPct}}%.",
     "analysisIncomeSingle": "{{name}} là nguồn thu nhập duy nhất trong tháng này, chiếm {{pct}}%.",
-    "noActivity": "Không có danh mục nào phát sinh trong tháng này."
+    "noCategories": "Chưa có danh mục nào. Nhấn + để thêm."
   },
   "accounts": {
     "cash": "Tiền mặt"

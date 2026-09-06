@@ -11,11 +11,16 @@ import * as yup from 'yup';
 import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button';
 import { ScreenContainer } from '@/components/screen-container';
+import { SegmentedControl } from '@/components/segmented-control';
 import { TextField } from '@/components/text-field';
-import { listCategoriesQuery } from '@/db/queries/categories';
+import { createCategory, listCategoriesQuery, updateCategory } from '@/db/queries/categories';
+import type { CategoryKind } from '@/db/schema';
 import { useCategoryName } from '@/hooks/use-category-name';
 import { useTheme } from '@/hooks/use-theme';
 import { accentRamp, fontFamily, fontSize, neutralRamp, radius, spacing } from '@/theme';
+
+/** Schema default icon — this form has no icon picker. */
+const DEFAULT_CATEGORY_ICON = '💸';
 
 const COLOR_SWATCHES = [
   accentRamp[500],
@@ -29,19 +34,17 @@ const COLOR_SWATCHES = [
 type CategoryFormProps = {
   /** Present when editing an existing category. */
   categoryId?: string;
+  /** Default kind for a new category, from the context it was opened from. */
+  initialKind?: CategoryKind;
 };
 
 type CategoryFormValues = {
   name: string;
   color: string;
+  kind: CategoryKind;
 };
 
-/**
- * UI-only — Save/Delete both just navigate back. No `createCategory`/
- * `updateCategory`/`deleteCategory` call happens here, deliberately: category
- * CRUD wiring is a follow-up pass, this one is the visual flow only.
- */
-export function CategoryForm({ categoryId }: CategoryFormProps) {
+export function CategoryForm({ categoryId, initialKind }: CategoryFormProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
@@ -58,6 +61,7 @@ export function CategoryForm({ categoryId }: CategoryFormProps) {
       yup.object({
         name: yup.string().trim().required(t('categoryForm.missingName')),
         color: yup.string().required(),
+        kind: yup.string<CategoryKind>().oneOf(['expense', 'income']).required(),
       }),
     [t]
   );
@@ -69,9 +73,10 @@ export function CategoryForm({ categoryId }: CategoryFormProps) {
     watch,
   } = useForm<CategoryFormValues>({
     resolver: yupResolver(categorySchema),
-    defaultValues: { name: '', color: COLOR_SWATCHES[0] },
+    defaultValues: { name: '', color: COLOR_SWATCHES[0], kind: initialKind ?? 'expense' },
   });
   const color = watch('color');
+  const kind = watch('kind');
 
   useEffect(() => {
     if (!isEditing || prefilled || !existing) {
@@ -79,10 +84,25 @@ export function CategoryForm({ categoryId }: CategoryFormProps) {
     }
     setValue('name', categoryName(existing.name, existing.isDefault));
     setValue('color', existing.color);
+    setValue('kind', existing.kind);
     setPrefilled(true);
   }, [categoryName, existing, isEditing, prefilled, setValue]);
 
-  const onSubmit = handleSubmit(() => {
+  const onSubmit = handleSubmit(async (values) => {
+    if (isEditing && categoryId) {
+      await updateCategory(categoryId, {
+        name: values.name.trim(),
+        color: values.color,
+        kind: values.kind,
+      });
+    } else {
+      await createCategory({
+        name: values.name.trim(),
+        icon: DEFAULT_CATEGORY_ICON,
+        color: values.color,
+        kind: values.kind,
+      });
+    }
     router.back();
   });
 
@@ -100,6 +120,20 @@ export function CategoryForm({ categoryId }: CategoryFormProps) {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.field}>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            {t('categoryForm.type')}
+          </Text>
+          <SegmentedControl
+            onChange={(value) => setValue('kind', value)}
+            options={[
+              { value: 'expense', label: t('categoryForm.expense') },
+              { value: 'income', label: t('categoryForm.income') },
+            ]}
+            value={kind}
+          />
+        </View>
+
         <Controller
           control={control}
           name="name"

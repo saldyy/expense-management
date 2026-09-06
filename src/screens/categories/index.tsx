@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/empty-state';
 import { IconButton } from '@/components/icon-button';
 import { ScreenContainer } from '@/components/screen-container';
 import { SegmentedControl } from '@/components/segmented-control';
+import { listCategoriesQuery } from '@/db/queries/categories';
 import { spendingByCategoryQuery, totalsByTypeQuery } from '@/db/queries/transactions';
 import type { TransactionType } from '@/db/schema';
 import { useCategoryName } from '@/hooks/use-category-name';
@@ -53,14 +54,32 @@ export function Categories() {
   const filter = useMemo(() => ({ start: range.start, end: range.end }), [range]);
 
   const { data: totals } = useLiveQuery(totalsByTypeQuery(filter), [filter]);
-  const { data: rows } = useLiveQuery(
+  const { data: spendRows } = useLiveQuery(
     spendingByCategoryQuery(filter, tab),
     [filter, tab]
   );
+  const { data: allCategories } = useLiveQuery(listCategoriesQuery(tab), [tab]);
 
   const displayTotal =
     totals.find((total) => total.type === tab)?.totalMinor ?? 0;
   const formattedTotal = format(displayTotal);
+
+  const spendByCategoryId = useMemo(
+    () => new Map(spendRows.map((row) => [row.categoryId, row.totalMinor])),
+    [spendRows]
+  );
+
+  const rows = useMemo(
+    () =>
+      allCategories.map((category) => ({
+        categoryId: category.id,
+        categoryName: category.name,
+        categoryIsDefault: category.isDefault,
+        categoryColor: category.color,
+        totalMinor: spendByCategoryId.get(category.id) ?? 0,
+      })),
+    [allCategories, spendByCategoryId]
+  );
 
   const donutSize = useMemo(() => donutSizeForLabel(formattedTotal), [formattedTotal]);
   const donutCenterPx = donutSize / 2;
@@ -70,7 +89,7 @@ export function Categories() {
   const arcs = useMemo(
     () =>
       buildDonutArcs(
-        rows.map((row) => ({
+        spendRows.map((row) => ({
           key: row.categoryId,
           value: row.totalMinor,
           color: row.categoryColor,
@@ -82,17 +101,17 @@ export function Categories() {
           innerRadius: donutInnerRadius,
         }
       ),
-    [rows, donutCenterPx, donutOuterRadius, donutInnerRadius]
+    [spendRows, donutCenterPx, donutOuterRadius, donutInnerRadius]
   );
 
   const analysisText = useMemo(() => {
-    if (rows.length === 0) {
+    if (spendRows.length === 0) {
       return null;
     }
-    const top = rows[0];
+    const top = spendRows[0];
     const topPct = displayTotal > 0 ? Math.round((top.totalMinor / displayTotal) * 100) : 0;
 
-    if (rows.length === 1) {
+    if (spendRows.length === 1) {
       const key =
         tab === 'income' ? 'categoriesScreen.analysisIncomeSingle' : 'categoriesScreen.analysisExpenseSingle';
       return t(key, {
@@ -101,7 +120,7 @@ export function Categories() {
       });
     }
 
-    const smallest = rows[rows.length - 1];
+    const smallest = spendRows[spendRows.length - 1];
     const smallPct =
       displayTotal > 0 ? Math.round((smallest.totalMinor / displayTotal) * 100) : 0;
     const key = tab === 'income' ? 'categoriesScreen.analysisIncome' : 'categoriesScreen.analysisExpense';
@@ -111,7 +130,7 @@ export function Categories() {
       smallName: resolveCategoryName(smallest.categoryName, smallest.categoryIsDefault),
       smallPct,
     });
-  }, [displayTotal, resolveCategoryName, rows, t, tab]);
+  }, [displayTotal, resolveCategoryName, spendRows, t, tab]);
 
   return (
     <ScreenContainer edges={{ top: true }}>
@@ -128,7 +147,7 @@ export function Categories() {
         <IconButton
           icon={Plus}
           label={t('categoriesScreen.addCategory')}
-          onPress={() => router.push('/category/new')}
+          onPress={() => router.push({ pathname: '/category/new', params: { kind: tab } })}
         />
       </View>
 
@@ -146,38 +165,40 @@ export function Categories() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {rows.length === 0 ? (
-          <EmptyState icon="📊" title={t('categoriesScreen.noActivity')} />
+        {allCategories.length === 0 ? (
+          <EmptyState icon="📊" title={t('categoriesScreen.noCategories')} />
         ) : (
           <>
-            <Animated.View entering={FadeIn.duration(220)} style={styles.donutWrap}>
-              <Svg height={donutSize} width={donutSize}>
-                {arcs.map((arc) => (
-                  <Path d={arc.path} fill={arc.color} fillRule="evenodd" key={arc.key} />
-                ))}
-              </Svg>
-              <View
-                pointerEvents="none"
-                style={[
-                  styles.donutCenter,
-                  {
-                    left: (donutSize - donutInnerRadius * 2) / 2,
-                    right: (donutSize - donutInnerRadius * 2) / 2,
-                  },
-                ]}
-              >
-                <Text style={[styles.donutLabel, { color: theme.textMuted }]}>
-                  {t(tab === 'income' ? 'overview.earnedThisMonth' : 'overview.spentThisMonth')}
-                </Text>
-                <Text
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  style={[styles.donutValue, { color: theme.text }]}
+            {spendRows.length > 0 ? (
+              <Animated.View entering={FadeIn.duration(220)} style={styles.donutWrap}>
+                <Svg height={donutSize} width={donutSize}>
+                  {arcs.map((arc) => (
+                    <Path d={arc.path} fill={arc.color} fillRule="evenodd" key={arc.key} />
+                  ))}
+                </Svg>
+                <View
+                  pointerEvents="none"
+                  style={[
+                    styles.donutCenter,
+                    {
+                      left: (donutSize - donutInnerRadius * 2) / 2,
+                      right: (donutSize - donutInnerRadius * 2) / 2,
+                    },
+                  ]}
                 >
-                  {formattedTotal}
-                </Text>
-              </View>
-            </Animated.View>
+                  <Text style={[styles.donutLabel, { color: theme.textMuted }]}>
+                    {t(tab === 'income' ? 'overview.earnedThisMonth' : 'overview.spentThisMonth')}
+                  </Text>
+                  <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={1}
+                    style={[styles.donutValue, { color: theme.text }]}
+                  >
+                    {formattedTotal}
+                  </Text>
+                </View>
+              </Animated.View>
+            ) : null}
 
             <View style={styles.rows}>
               {rows.map((row) => {

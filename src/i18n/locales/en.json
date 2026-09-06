@@ -58,6 +58,9 @@
   "categoryForm": {
     "addTitle": "Add Category",
     "editTitle": "Edit Category",
+    "type": "Type",
+    "expense": "Expense",
+    "income": "Income",
     "name": "Name",
     "namePlaceholder": "e.g. Groceries",
     "missingName": "Enter a category name.",
@@ -163,7 +166,7 @@
     "analysisExpenseSingle": "{{name}} is your only category with spend this month, at {{pct}}%.",
     "analysisIncome": "{{name}} is your largest income source at {{pct}}% of income. {{smallName}} is the smallest at {{smallPct}}%.",
     "analysisIncomeSingle": "{{name}} is your only income source this month, at {{pct}}%.",
-    "noActivity": "No categories with activity this month."
+    "noCategories": "No categories yet. Tap + to add one."
   },
   "accounts": {
     "cash": "Cash"
