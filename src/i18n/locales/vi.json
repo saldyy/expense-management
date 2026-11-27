@@ -105,7 +105,7 @@
     "exportCsvEmptyMessage": "Bạn chưa có giao dịch nào.",
     "exportCsvFailedTitle": "Không thể xuất dữ liệu",
     "exportCsvSavedTitle": "Xuất hoàn tất",
-    "exportCsvSavedMessage": "File CSV đã được lưu.",
+    "exportCsvSavedMessage": "Đã lưu vào Downloads/{{fileName}}",
     "importCsv": "Nhập từ CSV",
     "importCsvConfirmTitle": "Nhập {{count}} giao dịch?",
     "importCsvConfirmMessage": "Thao tác này sẽ thêm {{count}} giao dịch vào dữ liệu hiện có. Các danh mục chưa có trong ứng dụng sẽ được tự động tạo. Nhập cùng một file hai lần sẽ tạo giao dịch trùng lặp.",
