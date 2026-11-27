@@ -105,7 +105,7 @@
     "exportCsvEmptyMessage": "You don't have any transactions yet.",
     "exportCsvFailedTitle": "Couldn't export data",
     "exportCsvSavedTitle": "Export complete",
-    "exportCsvSavedMessage": "The CSV file has been saved.",
+    "exportCsvSavedMessage": "Saved to Downloads/{{fileName}}",
     "importCsv": "Import from CSV",
     "importCsvConfirmTitle": "Import {{count}} transactions?",
     "importCsvConfirmMessage": "Adds {{count}} transactions to your existing data. Categories not already in the app are created automatically. Importing the same file twice will duplicate transactions.",
